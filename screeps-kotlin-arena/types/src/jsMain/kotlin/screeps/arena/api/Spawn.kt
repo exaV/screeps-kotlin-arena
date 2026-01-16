@@ -7,21 +7,49 @@ import kotlinx.js.JsPlainObject
 
 @JsPlainObject
 external interface SpawnCreepResult {
+    /** The instance of the {@link Creep} being spawned. */
     var `object`: Creep?
+
+    /** The error code. */
     var error: ScreepsReturnCode?
 }
 
+/** Details of the creep being spawned currently. */
 external open class Spawning {
+    /** Time needed in total to complete the spawning. */
     var needTime: Double
+
+    /** Remaining time to go. */
     var remainingTime: Double
+
+    /** The creep that being spawned. */
     var creep: Creep
+
+    /** Cancel spawning immediately. */
     fun cancel(): ScreepsReturnCode?
 }
 
+/** This structure can create creeps. It also auto-regenerate a little amount of energy each tick. */
 external open class StructureSpawn : OwnedStructure {
+    /** A {@link Store} object that contains cargo of this structure. */
     var store: Store
+
+    /** If the spawn is in process of spawning a new creep, this object will contain a {@link Spawning} object, or null otherwise. */
     var spawning: Spawning?
+
+    /** The directions in which the spawn can create creeps. */
     var directions: Array<DirectionConstant>
+
+    /**
+     * Set the directions in which the spawn can create creeps.
+     * @param directions An array of direction constants.
+     */
     fun setDirections(directions: Array<DirectionConstant>): ScreepsReturnCode
+
+    /**
+     * Start the creep spawning process.
+     * @param body An array describing the new creep’s body.
+     * @returns a {@link SpawnCreepResult} object with the call result.
+     */
     fun spawnCreep(body: Array<BodyPartType>): SpawnCreepResult
 }

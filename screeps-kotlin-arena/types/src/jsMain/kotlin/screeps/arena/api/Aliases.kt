@@ -5,3 +5,5 @@ typealias Terrain = TerrainConstant
 typealias DoesZapCodeSpaceFlag = Int
 typealias ResourceType = ResourceConstant
 typealias BodyPartType = BodyPartConstant
+
+inline val <T> Constant<T>.value: T get() = this.asDynamic().unsafeCast<T>()
