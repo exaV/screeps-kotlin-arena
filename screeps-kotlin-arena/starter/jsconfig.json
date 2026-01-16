@@ -9,7 +9,7 @@
         "./typings/game/*"
       ],
       "kotlin/*": [
-        "./build/compileSync/js/main/productionExecutable/kotlin/*"
+        "./build/compileSync/js/main/productionExecutable/kotlin/**/*"
       ]
     }
   },
@@ -17,4 +17,7 @@
     "typingsVersion": "1.1.0",
     "disableAutoUpdate": false
   },
+  "include": [
+    "./build/compileSync/js/main/productionExecutable/kotlin"
+  ]
 }

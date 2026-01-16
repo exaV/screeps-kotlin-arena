@@ -1,30 +1,8 @@
 plugins {
-    kotlin("multiplatform") version "2.3.0"
-    kotlin("plugin.js-plain-objects") version "2.3.0"
-}
-
-group = "org.example"
-version = "1.0-SNAPSHOT"
-
-
-repositories {
-    mavenCentral()
+    kotlin("multiplatform")
 }
 
 kotlin {
-
-    sourceSets {
-        jsMain {
-            dependencies {
-            }
-
-        }
-        jsTest {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-    }
     js {
         compilerOptions {
             target = "es2015"
@@ -32,19 +10,31 @@ kotlin {
         nodejs {
             binaries.executable()
         }
+    }
 
-
+    sourceSets {
+        jsMain {
+            dependencies {
+                implementation(project(":types"))
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
     }
 }
 
 tasks.register("build-screeps-arena") {
     group = "screeps"
     dependsOn("build")
+//    screeps-arena/screeps-kotlin-arena-starter/build/compileSync/js/main/productionExecutable/kotlin/screeps-kotlin-arena-starter.mjs
 
-    val jsOutputDirectory = layout.buildDirectory.dir("/Users/patrick/ScreepsArena/screeps-arena/build/compileSync/js/main/productionExecutable/kotlin")
+    val jsOutputDirectory = layout.buildDirectory.dir("compileSync/js/main/productionExecutable/kotlin")
     doLast {
         val outputDir = jsOutputDirectory.get().asFile
-        val sourceFile = outputDir.resolve("${project.name}.mjs")
+        val sourceFile = outputDir.resolve("screeps-kotlin-arena-${project.name}.mjs")
         val targetFile = outputDir.resolve("main.mjs")
         if (!sourceFile.exists()) {
             throw GradleException("Expected JS output not found: ${sourceFile.absolutePath}")
