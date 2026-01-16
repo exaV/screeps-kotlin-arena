@@ -45,10 +45,10 @@ external interface FindPathOptions : SearchPathOptions {
 @JsPlainObject
 external interface CreateConstructionSiteResult {
     /** The instance of {@link ConstructionSite} created by this call. */
-    var `object`: ConstructionSite?
+    val `object`: ConstructionSite?
 
     /** The error code. */
-    var error: ScreepsReturnCode?
+    val error: ScreepsReturnCode?
 }
 
 /**

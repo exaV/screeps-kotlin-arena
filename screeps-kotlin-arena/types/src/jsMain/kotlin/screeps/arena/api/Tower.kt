@@ -6,9 +6,9 @@ package screeps.arena.api
 /** Remotely attacks game objects or heals creeps within its range. */
 external open class StructureTower : OwnedStructure {
     /** A {@link Store} object that contains cargo of this structure. */
-    var store: Store
+    val store: Store
     /** The remaining amount of ticks while this tower cannot be used. */
-    var cooldown: Double
+    val cooldown: Double
 
     /**
      * Remotely attack any creep or structure in range.

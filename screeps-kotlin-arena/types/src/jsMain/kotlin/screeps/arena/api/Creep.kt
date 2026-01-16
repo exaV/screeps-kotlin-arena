@@ -9,9 +9,9 @@ import kotlin.js.definedExternally
 @JsPlainObject
 external interface BodyPartDefinition {
     /** The body part type. */
-    var type: BodyPartConstant
+    val type: BodyPartConstant
     /** The body part hits. */
-    var hits: Double
+    val hits: Double
 }
 
 /**
@@ -20,25 +20,25 @@ external interface BodyPartDefinition {
  */
 external open class Creep : GameObject {
     /** An array describing the creep’s body. */
-    var body: Array<BodyPartDefinition>
+    val body: Array<BodyPartDefinition>
 
     /** The movement fatigue indicator. If it is greater than zero, the creep cannot move. */
-    var fatigue: Double
+    val fatigue: Double
 
     /** The current amount of hit points of the creep. */
-    var hits: Double
+    val hits: Double
 
     /** The maximum amount of hit points of the creep. */
-    var hitsMax: Double
+    val hitsMax: Double
 
     /** Whether it is your creep. */
-    var my: Boolean
+    val my: Boolean
 
     /** A {@link Store} object that contains cargo of this creep. */
-    var store: Store
+    val store: Store
 
     /** Whether this creep is still being spawned. */
-    var spawning: Boolean
+    val spawning: Boolean
 
     /**
      * Attack another creep, structure, or construction site in a short-ranged attack. Requires the {@link ATTACK} body part.

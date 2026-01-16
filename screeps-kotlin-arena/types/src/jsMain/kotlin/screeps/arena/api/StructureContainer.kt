@@ -10,5 +10,5 @@ package screeps.arena.api
  */
 external open class StructureContainer : OwnedStructure {
     /** A {@link Store} object that contains cargo of this structure. */
-    var store: Store
+    val store: Store
 }

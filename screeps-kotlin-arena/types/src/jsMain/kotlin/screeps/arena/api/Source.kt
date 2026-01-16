@@ -6,7 +6,7 @@ package screeps.arena.api
 /** An energy source object. Can be harvested by creeps with a {@link WORK} body part. */
 external open class Source : GameObject {
     /** Current amount of energy in the source. */
-    var energy: Double
+    val energy: Double
     /** The maximum amount of energy in the source. */
-    var energyCapacity: Double
+    val energyCapacity: Double
 }
