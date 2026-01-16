@@ -122,7 +122,7 @@ fun tutorial5StoreAndTransfer() {
  *     }
  * ```
  */
-fun tutorial6Terrain(){
+fun tutorial6Terrain() {
     val creeps = getObjectsByPrototype(Creep::class.js)
     val flags = getObjectsByPrototype(Flag::class.js)
     for (creep in creeps) {
@@ -144,16 +144,16 @@ var creep2: Creep? = null
  *     }
  * ```
  */
-fun tutorial7SpawnCreeps(){
+fun tutorial7SpawnCreeps() {
     val spawn = getObjectsByPrototype(StructureSpawn::class.js)[0]
     val flags = getObjectsByPrototype(Flag::class.js)
 
-    if (creep1 == null){
+    if (creep1 == null) {
         creep1 = spawn.spawnCreep(arrayOf(MOVE)).`object`
     } else {
         creep1?.moveTo(flags[0])
 
-        if (creep2 == null){
+        if (creep2 == null) {
             creep2 = spawn.spawnCreep(arrayOf(MOVE)).`object`
         } else {
             creep2?.moveTo(flags[1])
@@ -179,17 +179,17 @@ fun tutorial7SpawnCreeps(){
  * ```
  */
 
-fun tutorial8HarvestEnergy(){
+fun tutorial8HarvestEnergy() {
     val creep = getObjectsByPrototype(Creep::class.js).first { it.my }
     val source = getObjectsByPrototype(Source::class.js).first()
     val spawn = getObjectsByPrototype(StructureSpawn::class.js).first { it.my == true }
 
-    if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
-        if (creep.harvest(source) == ERR_NOT_IN_RANGE){
+    if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
             creep.moveTo(source)
         }
     } else {
-        if (creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE){
+        if (creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(spawn)
         }
     }
@@ -215,32 +215,65 @@ fun tutorial8HarvestEnergy(){
  *     }
  *  ```
  */
-fun tutorial9Construction(){
+fun tutorial9Construction() {
     val creep = getObjectsByPrototype(Creep::class.js).first { it.my }
-    if (creep.store[RESOURCE_ENERGY] == 0.0){
+    if (creep.store[RESOURCE_ENERGY] == 0.0) {
         val container = findClosestByPath(creep, getObjectsByPrototype(StructureContainer::class.js))
-        if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE){
+        if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(container)
         }
     } else {
         val consructionSite = getObjectsByPrototype(ConstructionSite::class.js).firstOrNull() { it.my == true }
-        if (consructionSite == null){
+        if (consructionSite == null) {
             createConstructionSite(50.0, 55.0, StructureTower::class.js)
         } else {
-            if (creep.build(consructionSite) == ERR_NOT_IN_RANGE){
+            if (creep.build(consructionSite) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(consructionSite)
             }
         }
     }
 }
 
-fun tutorial10FinalTest(){
-    val source = getObjectsByPrototype(Source::class.js).first()
-    val spawn = getObjectsByPrototype(StructureSpawn::class.js).first { it.my == true }
-    val myCreeps = getObjectsByPrototype(Creep::class.js).filter { it.my }
-    val enemies = getObjectsByPrototype(Creep::class.js).filterNot { it.my }
+object Tutorials10FinalTest {
 
 
+    fun run() {
+        val source = getObjectsByPrototype(Source::class.js).first()
+        val spawn = getObjectsByPrototype(StructureSpawn::class.js).first { it.my == true }
 
+        val myCreeps = getObjectsByPrototype(Creep::class.js).filter { it.my }
+        val enemies = getObjectsByPrototype(Creep::class.js).filterNot { it.my }
+
+        val workers = myCreeps.filter { it.body.any { it.type == WORK } }
+        val attackers = myCreeps.filter { it.body.any { it.type == ATTACK } }
+
+        if (workers.size < 2){
+            spawn.spawnCreep(arrayOf(WORK, MOVE, CARRY))
+        } else if (attackers.size < 10){
+            spawn.spawnCreep(arrayOf(MOVE, ATTACK))
+        }
+
+        for (creep in workers){
+            if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0){
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE){
+                    creep.moveTo(source)
+                }
+            } else {
+                if (creep.transfer(spawn, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE){
+                    creep.moveTo(spawn)
+                }
+            }
+
+        }
+        for (creep in attackers) {
+            if (enemies.isNotEmpty()){
+                val target = creep.findClosestByPath(enemies.toTypedArray())
+                if (creep.attack(target) == ERR_NOT_IN_RANGE){
+                    creep.moveTo(target)
+                }
+            }
+        }
+    }
 
 }
+

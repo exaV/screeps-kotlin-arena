@@ -20,7 +20,7 @@ external open class Spawning {
 
 external open class StructureSpawn : OwnedStructure {
     var store: Store
-    var spawning: Spawning
+    var spawning: Spawning?
     var directions: Array<DirectionConstant>
     fun setDirections(directions: Array<DirectionConstant>): Int
     fun spawnCreep(body: Array<BodyPartType>): SpawnCreepResult
