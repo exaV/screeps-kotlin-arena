@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.github.exav.examples
 
 
@@ -19,7 +21,7 @@ fun tutorial3FirstAttack() {
     val enemyCreep = getObjectsByPrototype(Creep::class.js).first { !it.my }
 
     if (myCreep.attack(enemyCreep) == ERR_NOT_IN_RANGE) {
-        myCreep.moveTo(enemyCreep);
+        myCreep.moveTo(enemyCreep)
     }
 }
 
@@ -57,20 +59,20 @@ fun tutorial4CreepsBodies() {
     for (creep in myCreeps) {
         if (creep.body.any { it.type == ATTACK }) {
             if (creep.attack(enemyCreep) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(enemyCreep);
+                creep.moveTo(enemyCreep)
             }
 
         }
         if (creep.body.any { it.type == RANGED_ATTACK }) {
             if (creep.rangedAttack(enemyCreep) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(enemyCreep);
+                creep.moveTo(enemyCreep)
             }
         }
         if (creep.body.any { it.type == HEAL }) {
             val myDamagedCreeps = myCreeps.filter { it.hits < it.hitsMax }
             if (myDamagedCreeps.isNotEmpty()) {
                 if (creep.heal(myDamagedCreeps.first()) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(myDamagedCreeps.first());
+                    creep.moveTo(myDamagedCreeps.first())
                 }
             }
         }
@@ -101,12 +103,12 @@ fun tutorial5StoreAndTransfer() {
         val myCreep = getObjectsByPrototype(Creep::class.js).first { it.my }
         if (myCreep.store[RESOURCE_ENERGY] == 0.0) {
             val container = getObjectsByPrototype(StructureContainer::class.js)[0]
-            myCreep.withdraw(container, RESOURCE_ENERGY);
+            myCreep.withdraw(container, RESOURCE_ENERGY)
         } else {
-            myCreep.transfer(tower, RESOURCE_ENERGY);
+            myCreep.transfer(tower, RESOURCE_ENERGY)
         }
     } else {
-        var target = getObjectsByPrototype(Creep::class.js).first { !it.my }
+        val target = getObjectsByPrototype(Creep::class.js).first { !it.my }
         tower.attack(target)
     }
 }
@@ -238,11 +240,11 @@ object Tutorials10FinalTest {
 
 
     fun run() {
-        val source = getObjectsByPrototype(Source::class.js).first()
-        val spawn = getObjectsByPrototype(StructureSpawn::class.js).first { it.my == true }
+        val source = getObjectsByPrototype(Source::class).first()
+        val spawn = getObjectsByPrototype(StructureSpawn::class).first { it.my == true }
 
-        val myCreeps = getObjectsByPrototype(Creep::class.js).filter { it.my }
-        val enemies = getObjectsByPrototype(Creep::class.js).filterNot { it.my }
+        val myCreeps = getObjectsByPrototype(Creep::class).filter { it.my }
+        val enemies = getObjectsByPrototype(Creep::class).filterNot { it.my }
 
         val workers = myCreeps.filter { it.body.any { it.type == WORK } }
         val attackers = myCreeps.filter { it.body.any { it.type == ATTACK } }

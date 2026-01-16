@@ -1,5 +1,7 @@
 package screeps.arena.api
 
+import kotlin.reflect.KClass
+
 typealias Direction = DirectionConstant
 typealias Terrain = TerrainConstant
 typealias DoesZapCodeSpaceFlag = Int
@@ -13,5 +15,9 @@ inline val <T> Constant<T>.value: T get() = this.asDynamic().unsafeCast<T>()
 operator fun Double?.compareTo(other: Double?): Int = compareValues(this ?: 0, other ?: 0.0)
 operator fun Double?.compareTo(other: Int?): Int = compareValues(this ?: 0, other ?: 0)
 
+@Suppress("unused")
 val SpawnCreepResult.creep
     get() = `object`
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T : GameObject> getObjectsByPrototype(prototype: KClass<T>): Array<T> = getObjectsByPrototype(prototype.js)
