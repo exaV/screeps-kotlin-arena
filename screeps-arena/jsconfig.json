@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": true,
+    "paths": {
+      "game/*": [
+        "./typings/game/*"
+      ],
+      "kotlin/*": [
+        "./build/compileSync/js/main/productionExecutable/kotlin/*"
+      ]
+    }
+  },
+  "screepsArena": {
+    "typingsVersion": "1.1.0",
+    "disableAutoUpdate": false
+  },
+}
