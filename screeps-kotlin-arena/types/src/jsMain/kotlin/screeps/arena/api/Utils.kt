@@ -31,7 +31,7 @@ external interface FindPathOptions : SearchPathOptions {
 @JsPlainObject
 external interface CreateConstructionSiteResult {
     var `object`: ConstructionSite?
-    var error: Int?
+    var error: ScreepsReturnCode?
 }
 
 external fun <T : Structure> createConstructionSite(

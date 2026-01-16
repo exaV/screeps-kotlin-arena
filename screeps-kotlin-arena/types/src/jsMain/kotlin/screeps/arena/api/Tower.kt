@@ -6,6 +6,6 @@ package screeps.arena.api
 external open class StructureTower : OwnedStructure {
     var store: Store
     var cooldown: Double
-    fun attack(target: dynamic): Int
-    fun heal(target: Creep): Int
+    fun attack(target: dynamic): ScreepsReturnCode
+    fun heal(target: Creep): ScreepsReturnCode
 }

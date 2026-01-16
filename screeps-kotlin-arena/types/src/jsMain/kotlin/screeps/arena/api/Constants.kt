@@ -3,42 +3,55 @@
 
 package screeps.arena.api
 
-external val OK: Int
-external val ERR_NOT_OWNER: Int
-external val ERR_NO_PATH: Int
-external val ERR_NAME_EXISTS: Int
-external val ERR_BUSY: Int
-external val ERR_NOT_FOUND: Int
-external val ERR_NOT_ENOUGH_ENERGY: Int
-external val ERR_NOT_ENOUGH_RESOURCES: Int
-external val ERR_INVALID_TARGET: Int
-external val ERR_FULL: Int
-external val ERR_NOT_IN_RANGE: Int
-external val ERR_INVALID_ARGS: Int
-external val ERR_TIRED: Int
-external val ERR_NO_BODYPART: Int
-external val ERR_NOT_ENOUGH_EXTENSIONS: Int
+external interface Constant<T>
 
-external val MOVE: String
-external val RANGED_ATTACK: String
-external val HEAL: String
-external val ATTACK: String
-external val CARRY: String
-external val TOUGH: String
-external val WORK: String
 
-external val TOP: Int
-external val TOP_RIGHT: Int
-external val RIGHT: Int
-external val BOTTOM_RIGHT: Int
-external val BOTTOM: Int
-external val BOTTOM_LEFT: Int
-external val LEFT: Int
-external val TOP_LEFT: Int
+typealias StringConstant = Constant<String>
+typealias IntConstant = Constant<Int>
 
-external val TERRAIN_PLAIN: Int
-external val TERRAIN_WALL: Int
-external val TERRAIN_SWAMP: Int
+sealed external interface ScreepsReturnCode : IntConstant
+external interface BodyPartConstant : StringConstant
+external interface ActiveBodyPartConstant : BodyPartConstant
+external interface DirectionConstant : IntConstant
+external interface TerrainConstant : IntConstant
+external interface ResourceConstant : StringConstant
+
+external object OK: ScreepsReturnCode
+external object ERR_NOT_OWNER: ScreepsReturnCode
+external object ERR_NO_PATH: ScreepsReturnCode
+external object ERR_NAME_EXISTS: ScreepsReturnCode
+external object ERR_BUSY: ScreepsReturnCode
+external object ERR_NOT_FOUND: ScreepsReturnCode
+external object ERR_NOT_ENOUGH_ENERGY: ScreepsReturnCode
+external object ERR_NOT_ENOUGH_RESOURCES: ScreepsReturnCode
+external object ERR_INVALID_TARGET: ScreepsReturnCode
+external object ERR_FULL: ScreepsReturnCode
+external object ERR_NOT_IN_RANGE: ScreepsReturnCode
+external object ERR_INVALID_ARGS: ScreepsReturnCode
+external object ERR_TIRED: ScreepsReturnCode
+external object ERR_NO_BODYPART: ScreepsReturnCode
+external object ERR_NOT_ENOUGH_EXTENSIONS: ScreepsReturnCode
+
+external val MOVE: ActiveBodyPartConstant
+external val RANGED_ATTACK: ActiveBodyPartConstant
+external val HEAL: ActiveBodyPartConstant
+external val ATTACK: ActiveBodyPartConstant
+external val CARRY: ActiveBodyPartConstant
+external val TOUGH: ActiveBodyPartConstant
+external val WORK: ActiveBodyPartConstant
+
+external val TOP: DirectionConstant
+external val TOP_RIGHT: DirectionConstant
+external val RIGHT: DirectionConstant
+external val BOTTOM_RIGHT: DirectionConstant
+external val BOTTOM: DirectionConstant
+external val BOTTOM_LEFT: DirectionConstant
+external val LEFT: DirectionConstant
+external val TOP_LEFT: DirectionConstant
+
+external val TERRAIN_PLAIN: TerrainConstant
+external val TERRAIN_WALL: TerrainConstant
+external val TERRAIN_SWAMP: TerrainConstant
 
 external val BODYPART_HITS: Int
 
@@ -55,7 +68,7 @@ external val DISMANTLE_COST: Double
 external val HARVEST_POWER: Int
 external val BUILD_POWER: Int
 
-external val OBSTACLE_OBJECT_TYPES: dynamic
+external val OBSTACLE_OBJECT_TYPES: Array<String>
 
 external val TOWER_ENERGY_COST: Int
 external val TOWER_RANGE: Int
@@ -69,13 +82,13 @@ external val TOWER_FALLOFF_RANGE: Int
 external val TOWER_FALLOFF: Double
 external val TOWER_COOLDOWN: Int
 
-external val BODYPART_COST: dynamic
+external val BODYPART_COST: Record<BodyPartConstant, Int>
 
 external val MAX_CREEP_SIZE: Int
 external val CREEP_SPAWN_TIME: Int
 
-external val RESOURCE_ENERGY: String
-external val RESOURCES_ALL: dynamic
+external val RESOURCE_ENERGY: ResourceConstant
+external val RESOURCES_ALL: Array<ResourceConstant>
 
 external val SOURCE_ENERGY_REGEN: Int
 
@@ -83,8 +96,8 @@ external val RESOURCE_DECAY: Int
 
 external val MAX_CONSTRUCTION_SITES: Int
 
-external val CONSTRUCTION_COST: dynamic
-external val STRUCTURE_PROTOTYPES: dynamic
+external val CONSTRUCTION_COST: Record<String, Int>
+external val STRUCTURE_PROTOTYPES: Record<String, Any>
 
 external val CONSTRUCTION_COST_ROAD_SWAMP_RATIO: Int
 external val CONSTRUCTION_COST_ROAD_WALL_RATIO: Int

@@ -1,8 +1,7 @@
 package screeps.arena.api
 
-typealias Direction = Int
-typealias Terrain = Int
+typealias Direction = DirectionConstant
+typealias Terrain = TerrainConstant
 typealias DoesZapCodeSpaceFlag = Int
-typealias ResourceType = String
-typealias BodyPartType = String
-typealias DirectionConstant = Int
+typealias ResourceType = ResourceConstant
+typealias BodyPartType = BodyPartConstant

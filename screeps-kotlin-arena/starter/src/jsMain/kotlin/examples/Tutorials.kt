@@ -271,7 +271,15 @@ object Tutorials10FinalTest {
                 if (creep.attack(target) == ERR_NOT_IN_RANGE){
                     creep.moveTo(target)
                 }
+
+                when(val code = creep.attack(target)){
+                    ERR_NOT_IN_RANGE -> creep.moveTo(target)
+                    OK -> println("${creep.id}: ${target.id} get off my land!")
+                    ERR_INVALID_TARGET -> {} // ignore
+                    else -> println("error $code")
+                }
             }
+
         }
     }
 

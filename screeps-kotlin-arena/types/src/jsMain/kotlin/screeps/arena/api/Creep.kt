@@ -8,7 +8,7 @@ import kotlin.js.definedExternally
 
 @JsPlainObject
 external interface BodyPartDefinition {
-    var type: BodyPartType
+    var type: BodyPartConstant
     var hits: Double
 }
 
@@ -21,31 +21,31 @@ external open class Creep : GameObject {
     var store: Store
     var spawning: Boolean
 
-    fun attack(target: dynamic): Int
+    fun attack(target: dynamic): ScreepsReturnCode
 
-    fun build(target: ConstructionSite): Int
+    fun build(target: ConstructionSite): ScreepsReturnCode
 
-    fun drop(resource: ResourceType, amount: Double = definedExternally): Int
+    fun drop(resource: ResourceType, amount: Double = definedExternally): ScreepsReturnCode
 
-    fun harvest(target: Source): Int
+    fun harvest(target: Source): ScreepsReturnCode
 
-    fun heal(target: Creep): Int
+    fun heal(target: Creep): ScreepsReturnCode
 
-    fun move(direction: Direction): Int
+    fun move(direction: Direction): ScreepsReturnCode
 
-    fun moveTo(target: Position, options: FindPathOptions = definedExternally): Int
+    fun moveTo(target: Position, options: FindPathOptions = definedExternally): ScreepsReturnCode
 
-    fun pickup(target: Resource): Int
+    fun pickup(target: Resource): ScreepsReturnCode
 
-    fun pull(target: Creep): Int
+    fun pull(target: Creep): ScreepsReturnCode
 
-    fun rangedAttack(target: dynamic): Int
+    fun rangedAttack(target: dynamic): ScreepsReturnCode
 
-    fun rangedHeal(target: Creep): Int
+    fun rangedHeal(target: Creep): ScreepsReturnCode
 
-    fun rangedMassAttack(): Int
+    fun rangedMassAttack(): ScreepsReturnCode
 
-    fun transfer(target: dynamic, resource: ResourceType, amount: Double = definedExternally): Int
+    fun transfer(target: dynamic, resource: ResourceType, amount: Double = definedExternally): ScreepsReturnCode
 
-    fun withdraw(target: Structure, resource: ResourceType, amount: Double = definedExternally): Int
+    fun withdraw(target: Structure, resource: ResourceType, amount: Double = definedExternally): ScreepsReturnCode
 }

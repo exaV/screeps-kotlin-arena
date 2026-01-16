@@ -8,20 +8,20 @@ import kotlinx.js.JsPlainObject
 @JsPlainObject
 external interface SpawnCreepResult {
     var `object`: Creep?
-    var error: Int?
+    var error: ScreepsReturnCode?
 }
 
 external open class Spawning {
     var needTime: Double
     var remainingTime: Double
     var creep: Creep
-    fun cancel(): Int?
+    fun cancel(): ScreepsReturnCode?
 }
 
 external open class StructureSpawn : OwnedStructure {
     var store: Store
     var spawning: Spawning?
     var directions: Array<DirectionConstant>
-    fun setDirections(directions: Array<DirectionConstant>): Int
+    fun setDirections(directions: Array<DirectionConstant>): ScreepsReturnCode
     fun spawnCreep(body: Array<BodyPartType>): SpawnCreepResult
 }
