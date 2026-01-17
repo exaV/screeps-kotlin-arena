@@ -47,10 +47,17 @@ tasks.register("setup-screeps-arenas") {
             return@doLast
         }
 
-        val nodeDir = File(nodespec.executable.get())
-        val nodeRoot = nodeDir.parentFile.parentFile
-        logger.lifecycle("using node at {}", nodeRoot)
-        val npm = File(nodeRoot, "lib/node_modules/npm/bin/npm-cli.js")
+        val nodeDir = File(nodespec.executable.get()).parentFile
+        logger.lifecycle("using node at {}", nodeDir)
+        var npm = File(nodeDir.parentFile, "lib/node_modules/npm/bin/npm-cli.js")
+        if (!npm.exists()){
+            logger.debug("{} does not exist", npm.absolutePath)
+            npm = File(nodeDir, "node_modules/npm/bin/npm-cli.js")
+        }
+        if (!npm.exists()){
+            logger.debug("{} does not exist", npm.absolutePath)
+            throw GradleException("Could not locate npm-cli.js near bundled node at: ${nodeDir.absolutePath}")
+        }
 
         arenaFolders.forEach { arenaFolder ->
             logger.lifecycle("Setting up arena: {}", arenaFolder.name)
