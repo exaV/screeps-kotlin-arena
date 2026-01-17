@@ -2,4 +2,7 @@
 build/
 .idea/
 .kotlin/
-tutorial/
+typings/
+node_modules/
+arenas/**/package-lock.json
+arenas/**/typings

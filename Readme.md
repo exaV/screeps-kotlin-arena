@@ -5,10 +5,24 @@ This project provides a starting point for playing [Screeps Arena](https://arena
 ## Getting started:
 
 ```shell
-./gradlew build-screeps-arena
+./gradlew setup-screeps-arenas
 ```
 
-Point your Arena client at [starter/jsconfig.json](starter/jsconfig.json) and hit play.
+Point your Arena client at [one of the arenas](arenas/tutorial) and hit play.
+
+## Updating code
+
+`gradle build` is sufficient
+
+The setup-screeps-arenas will create links from the node_modules
+folder in each arena subfolder to gradle's build directory which keeps changes in sync.
+
+## Adding a new Arena
+
+Copy one of the existing subfolder of [arenas](arenas) 
+and change the main.mjs file so it imports the correct entrypoint.
+
+Afterward you must run `gradle setup-screeps-arenas` once.
 
 ## Types
 
@@ -20,4 +34,4 @@ and update the Kotlin definitions accordingly.
 
 ## FAQ
 
-- Error "module not found": run `gradle build-screeps-arena` first
+- Error "module not found": run `gradle setup-screeps-arenas` first

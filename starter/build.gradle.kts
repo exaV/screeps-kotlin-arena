@@ -1,3 +1,6 @@
+import org.gradle.kotlin.dsl.support.serviceOf
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+
 plugins {
     kotlin("multiplatform")
 }
@@ -26,19 +29,38 @@ kotlin {
     }
 }
 
-tasks.register("build-screeps-arena") {
+
+tasks.register("setup-screeps-arenas") {
     group = "screeps"
     dependsOn("build")
-//    screeps-arena/screeps-kotlin-arena-starter/build/compileSync/js/main/productionExecutable/kotlin/screeps-kotlin-arena-starter.mjs
 
-    val jsOutputDirectory = layout.buildDirectory.dir("compileSync/js/main/productionExecutable/kotlin")
+    val execOps = project.serviceOf<ExecOperations>()
+    val nodespec = project.the<NodeJsEnvSpec>() // or rootProject.the<NodeJsEnvSpec>() if that's where it lives
+
     doLast {
-        val outputDir = jsOutputDirectory.get().asFile
-        val sourceFile = outputDir.resolve("screeps-kotlin-arena-${project.name}.mjs")
-        val targetFile = outputDir.resolve("main.mjs")
-        if (!sourceFile.exists()) {
-            throw GradleException("Expected JS output not found: ${sourceFile.absolutePath}")
+        val arenasDir = project.parent!!.file("arenas")
+        logger.lifecycle("setup-screeps-arenas: scanning {}", arenasDir.absolutePath)
+
+        val arenaFolders = arenasDir.listFiles()?.filter { it.isDirectory }.orEmpty()
+        if (arenaFolders.isEmpty()) {
+            logger.warn("No arena subfolders found under {}", arenasDir.absolutePath)
+            return@doLast
         }
-        sourceFile.copyTo(targetFile, overwrite = true)
+
+        val nodeDir = File(nodespec.executable.get())
+        val nodeRoot = nodeDir.parentFile.parentFile
+        logger.lifecycle("using node at {}", nodeRoot)
+        val npm = File(nodeRoot, "lib/node_modules/npm/bin/npm-cli.js")
+
+        arenaFolders.forEach { arenaFolder ->
+            logger.lifecycle("Setting up arena: {}", arenaFolder.name)
+
+            execOps.exec {
+                workingDir = arenaFolder
+                executable = nodespec.executable.get()
+                args(npm.absolutePath, "install",  "--no-audit")
+
+            }
+        }
     }
 }

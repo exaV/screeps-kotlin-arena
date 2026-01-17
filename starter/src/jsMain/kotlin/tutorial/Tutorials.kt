@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.github.exav.examples
+package tutorial
 
 
 import screeps.arena.api.*
