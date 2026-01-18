@@ -129,7 +129,9 @@ fun tutorial6Terrain() {
     val flags = getObjectsByPrototype(Flag::class.js)
     for (creep in creeps) {
         val flag = creep.findClosestByPath(flags)
-        creep.moveTo(flag)
+        if (flag != null){
+            creep.moveTo(flag)
+        }
     }
 }
 
@@ -269,7 +271,7 @@ object Tutorials10FinalTest {
         }
         for (creep in attackers) {
             if (enemies.isNotEmpty()){
-                val target = creep.findClosestByPath(enemies.toTypedArray())
+                val target = creep.findClosestByPath(enemies.toTypedArray()) ?: break
                 if (creep.attack(target) == ERR_NOT_IN_RANGE){
                     creep.moveTo(target)
                 }

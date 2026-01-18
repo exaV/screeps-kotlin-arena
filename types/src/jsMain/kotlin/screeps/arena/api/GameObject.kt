@@ -68,7 +68,7 @@ external open class GameObject : Position {
     fun <T : Position> findClosestByPath(
         positions: Array<T>,
         options: FindPathOptions = definedExternally,
-    ): T
+    ): T?
 
     /**
      * Find a position with the shortest linear distance from this game object.
