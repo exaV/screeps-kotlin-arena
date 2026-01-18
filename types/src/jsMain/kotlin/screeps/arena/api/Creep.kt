@@ -45,7 +45,7 @@ external open class Creep : GameObject {
      * @param target The target object.
      * @returns Either {@link OK} or one of ERR_* error codes.
      */
-    fun attack(target: dynamic): ScreepsReturnCode
+    fun attack(target: GameObject): ScreepsReturnCode
 
     /**
      * Build a structure at the target construction site using carried energy.
@@ -111,7 +111,7 @@ external open class Creep : GameObject {
      * @param target The target object to be attacked.
      * @returns Either {@link OK} or one of ERR_* error codes.
      */
-    fun rangedAttack(target: dynamic): ScreepsReturnCode
+    fun rangedAttack(target: GameObject): ScreepsReturnCode
 
     /**
      * Heal another creep at a distance. Requires the {@link HEAL} body part.
@@ -132,7 +132,7 @@ external open class Creep : GameObject {
      * @param resource One of the RESOURCE_* constants.
      * @param amount The amount of resources to be transferred. If omitted, all the available carried amount is used.
      */
-    fun transfer(target: dynamic, resource: ResourceType, amount: Int = definedExternally): ScreepsReturnCode
+    fun transfer(target: GameObject, resource: ResourceType, amount: Int = definedExternally): ScreepsReturnCode
 
     /**
      * Withdraw resources from a structure.

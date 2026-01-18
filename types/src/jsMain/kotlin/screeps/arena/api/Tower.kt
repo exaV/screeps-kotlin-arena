@@ -14,7 +14,7 @@ external open class StructureTower : OwnedStructure {
      * Remotely attack any creep or structure in range.
      * @param target The target object.
      */
-    fun attack(target: dynamic): ScreepsReturnCode
+    fun attack(target: GameObject): ScreepsReturnCode
 
     /**
      * Remotely heal any creep in range.

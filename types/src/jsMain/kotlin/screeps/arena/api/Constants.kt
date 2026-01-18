@@ -15,21 +15,21 @@ external interface DirectionConstant : IntConstant
 external interface TerrainConstant : IntConstant
 external interface ResourceConstant : StringConstant
 
-external object OK: ScreepsReturnCode
-external object ERR_NOT_OWNER: ScreepsReturnCode
-external object ERR_NO_PATH: ScreepsReturnCode
-external object ERR_NAME_EXISTS: ScreepsReturnCode
-external object ERR_BUSY: ScreepsReturnCode
-external object ERR_NOT_FOUND: ScreepsReturnCode
-external object ERR_NOT_ENOUGH_ENERGY: ScreepsReturnCode
-external object ERR_NOT_ENOUGH_RESOURCES: ScreepsReturnCode
-external object ERR_INVALID_TARGET: ScreepsReturnCode
-external object ERR_FULL: ScreepsReturnCode
-external object ERR_NOT_IN_RANGE: ScreepsReturnCode
-external object ERR_INVALID_ARGS: ScreepsReturnCode
-external object ERR_TIRED: ScreepsReturnCode
-external object ERR_NO_BODYPART: ScreepsReturnCode
-external object ERR_NOT_ENOUGH_EXTENSIONS: ScreepsReturnCode
+external object OK : ScreepsReturnCode
+external object ERR_NOT_OWNER : ScreepsReturnCode
+external object ERR_NO_PATH : ScreepsReturnCode
+external object ERR_NAME_EXISTS : ScreepsReturnCode
+external object ERR_BUSY : ScreepsReturnCode
+external object ERR_NOT_FOUND : ScreepsReturnCode
+external object ERR_NOT_ENOUGH_ENERGY : ScreepsReturnCode
+external object ERR_NOT_ENOUGH_RESOURCES : ScreepsReturnCode
+external object ERR_INVALID_TARGET : ScreepsReturnCode
+external object ERR_FULL : ScreepsReturnCode
+external object ERR_NOT_IN_RANGE : ScreepsReturnCode
+external object ERR_INVALID_ARGS : ScreepsReturnCode
+external object ERR_TIRED : ScreepsReturnCode
+external object ERR_NO_BODYPART : ScreepsReturnCode
+external object ERR_NOT_ENOUGH_EXTENSIONS : ScreepsReturnCode
 
 external val MOVE: BodyPartConstant
 external val RANGED_ATTACK: BodyPartConstant
@@ -55,7 +55,7 @@ external val TERRAIN_SWAMP: TerrainConstant
 external val BODYPART_HITS: Int
 
 external val RANGED_ATTACK_POWER: Int
-external val RANGED_ATTACK_DISTANCE_RATE: dynamic
+external val RANGED_ATTACK_DISTANCE_RATE: Record<Int, Int>
 external val ATTACK_POWER: Int
 external val HEAL_POWER: Int
 external val RANGED_HEAL_POWER: Int

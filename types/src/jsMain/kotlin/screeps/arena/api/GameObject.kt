@@ -37,7 +37,7 @@ external open class GameObject : Position {
     var exists: Boolean
 
     /** The unique ID of this object that you can use in {@link getObjectById}. */
-    var id: dynamic
+    var id: String
 
     /** If defined, then this object will disappear after this number of ticks. */
     var ticksToDecay: Int?

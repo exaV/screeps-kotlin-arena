@@ -164,7 +164,7 @@ external fun getHeapStatistics(): HeapInfo
  * Get an object with the specified unique ID.
  * @param id The id property of the needed object. See {@link GameObject} prototype.
  */
-external fun getObjectById(id: dynamic): GameObject
+external fun getObjectById(id: String): GameObject
 
 /**
  * Get all game objects in the game.
