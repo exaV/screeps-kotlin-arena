@@ -12,10 +12,10 @@ external interface SearchPathOptions {
     var costMatrix: CostMatrix?
 
     /** Cost for walking on plain positions. The default is 2. */
-    var plainCost: Double?
+    var plainCost: Int?
 
     /** Cost for walking on swamp positions. The default is 10. */
-    var swampCost: Double?
+    var swampCost: Int?
 
     /**
      * Instead of searching for a path to the goals this will search for a path away from the goals.
@@ -25,10 +25,10 @@ external interface SearchPathOptions {
     var flee: Boolean?
 
     /** The maximum allowed pathfinding operations. The default value is 50000. */
-    var maxOps: Double?
+    var maxOps: Int?
 
     /** The maximum allowed cost of the path returned. The default is Infinity. */
-    var maxCost: Double?
+    var maxCost: Int?
 
     /** Weight from 1 to 9 to apply to the heuristic in the A* formula F = G + weight * H. The default value is 1.2. */
     var heuristicWeight: Double?
@@ -40,10 +40,10 @@ external interface SearchPathResult {
     var path: Array<Position>
 
     /** Total number of operations performed before this path was calculated. */
-    var ops: Double
+    var ops: Int
 
     /** The total cost of the path as derived from plainCost, swampCost, and given CostMatrix instance. */
-    var cost: Double
+    var cost: Int
 
     /** If the pathfinder fails to find a complete path, this will be true. */
     var incomplete: Boolean
@@ -65,7 +65,7 @@ external class CostMatrix {
      * @param y The Y position in the game.
      * @returns the cost at the specified position.
      */
-    fun get(x: Double, y: Double): Double
+    fun get(x: Int, y: Int): Int
 
     /**
      * Set the cost of a position in this CostMatrix.
@@ -73,7 +73,7 @@ external class CostMatrix {
      * @param y The Y position in the game.
      * @param cost Cost of this position.
      */
-    fun set(x: Double, y: Double, cost: Double)
+    fun set(x: Int, y: Int, cost: Int)
 
     /**
      * @returns a new CostMatrix instance.

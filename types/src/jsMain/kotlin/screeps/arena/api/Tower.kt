@@ -8,7 +8,7 @@ external open class StructureTower : OwnedStructure {
     /** A {@link Store} object that contains cargo of this structure. */
     val store: Store
     /** The remaining amount of ticks while this tower cannot be used. */
-    val cooldown: Double
+    val cooldown: Int
 
     /**
      * Remotely attack any creep or structure in range.

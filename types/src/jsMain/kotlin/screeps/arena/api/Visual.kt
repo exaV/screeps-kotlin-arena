@@ -14,15 +14,15 @@ typealias TextAlign = String
 @JsPlainObject
 external interface CircleVisualStyle {
     /** Circle radius, default is 0.15. */
-    var radius: Double?
+    var radius: Int?
     /** Fill color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var fill: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Double?
+    var opacity: Int?
     /** Stroke color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var stroke: Color?
     /** Stroke line width, default is 0.1. */
-    var strokeWidth: Double?
+    var strokeWidth: Int?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -30,11 +30,11 @@ external interface CircleVisualStyle {
 @JsPlainObject
 external interface LineVisualStyle {
     /** Line width, default is 0.1. */
-    var width: Double?
+    var width: Int?
     /** Line color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var color: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Double?
+    var opacity: Int?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -44,11 +44,11 @@ external interface PolyVisualStyle {
     /** Fill color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var fill: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Double?
+    var opacity: Int?
     /** Stroke color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var stroke: Color?
     /** Stroke line width, default is 0.1. */
-    var strokeWidth: Double?
+    var strokeWidth: Int?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -58,11 +58,11 @@ external interface RectVisualStyle {
     /** Fill color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var fill: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Double?
+    var opacity: Int?
     /** Stroke color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var stroke: Color?
     /** Stroke line width, default is 0.1. */
-    var strokeWidth: Double?
+    var strokeWidth: Int?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -77,7 +77,7 @@ external interface TextVisualStyle {
      */
     var backgroundColor: Color?
     /** Background rectangle padding, default is 0.3. */
-    var backgroundPadding: Double?
+    var backgroundPadding: Int?
     /** Font color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var color: Color?
     /**
@@ -86,11 +86,11 @@ external interface TextVisualStyle {
      */
     var font: dynamic
     /** Opacity value, default is 1. */
-    var opacity: Double?
+    var opacity: Int?
     /** Stroke color in the following format: #ffffff (hex triplet). default is undefined (no stroke). */
     var stroke: Color?
     /** Stroke line width, default is 0.15. */
-    var strokeWidth: Double?
+    var strokeWidth: Int?
 }
 
 /**
@@ -104,9 +104,9 @@ external class Visual {
      * @param layer The layer of visuals in this object. Visuals of higher layer overlaps visuals of lower layer. Default is 0.
      * @param persistent Whether visuals in this object are persistent. Non-persistent visuals are visible during the current tick only.
      */
-    constructor(layer: Double = definedExternally, persistent: Boolean = definedExternally)
+    constructor(layer: Int = definedExternally, persistent: Boolean = definedExternally)
     /** The layer of visuals in the object. */
-    val layer: Double
+    val layer: Int
     /** Whether visuals in this object are persistent. */
     val persistent: Boolean
 
@@ -169,10 +169,10 @@ external class Visual {
      * @param style.lineStyle Either undefined (solid line), dashed, or dotted. Default is undefined.
      * @returns the {@link Visual} object itself, so that you can chain calls.
      */
-    fun rect(pos: Position, w: Double, h: Double, style: RectVisualStyle = definedExternally): Visual
+    fun rect(pos: Position, w: Int, h: Int, style: RectVisualStyle = definedExternally): Visual
 
     /** @returns the size of the visuals in bytes. */
-    fun size(): Double
+    fun size(): Int
 
     /**
      * Draw a text label. You can use any valid Unicode characters, including emoji.

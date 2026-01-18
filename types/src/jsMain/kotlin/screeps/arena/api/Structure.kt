@@ -6,7 +6,7 @@ package screeps.arena.api
 /** The base prototype object of all structures. */
 external open class Structure : GameObject {
     /** The current amount of hit points of the structure. */
-    val hits: Double?
+    val hits: Int?
     /** The maximum amount of hit points of the structure. */
-    val hitsMax: Double?
+    val hitsMax: Int?
 }

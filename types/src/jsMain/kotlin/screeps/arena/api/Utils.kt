@@ -10,29 +10,29 @@ import kotlin.js.definedExternally
 @JsPlainObject
 external interface HeapInfo {
     /** Total size of the heap. */
-    var total_heap_size: Double
+    var total_heap_size: Int
     /** Size of executable heap. */
-    var total_heap_size_executable: Double
+    var total_heap_size_executable: Int
     /** Total physical size of the heap. */
-    var total_physical_size: Double
+    var total_physical_size: Int
     /** Total available size of the heap. */
-    var total_available_size: Double
+    var total_available_size: Int
     /** Currently used heap size. */
-    var used_heap_size: Double
+    var used_heap_size: Int
     /** Heap size limit. */
-    var heap_size_limit: Double
+    var heap_size_limit: Int
     /** Total malloced memory. */
-    var malloced_memory: Double
+    var malloced_memory: Int
     /** Peak malloced memory. */
-    var peak_malloced_memory: Double
+    var peak_malloced_memory: Int
     /** Whether code space is zap garbage. */
     var does_zap_garbage: DoesZapCodeSpaceFlag
     /** Number of native contexts. */
-    var number_of_native_contexts: Double
+    var number_of_native_contexts: Int
     /** Number of detached contexts. */
-    var number_of_detached_contexts: Double
+    var number_of_detached_contexts: Int
     /** Externally allocated size. */
-    var externally_allocated_size: Double
+    var externally_allocated_size: Int
 }
 
 @JsPlainObject
@@ -70,7 +70,7 @@ external fun <T : Structure> createConstructionSite(
  * @returns a {@link CreateConstructionSiteResult} object with the call result.
  */
 external fun <T : Structure> createConstructionSite(
-    x: Double, y: Double,
+    x: Int, y: Int,
     structurePrototype: JsClass<T>,
 ): CreateConstructionSiteResult
 
@@ -117,7 +117,7 @@ external fun <T : Position> findClosestByRange(
 external fun <T : Position> findInRange(
     fromPos: Position,
     positions: Array<T>,
-    range: Double,
+    range: Int,
 ): Array<T>
 
 /**
@@ -145,7 +145,7 @@ external fun findPath(
 /**
  * @returns CPU wall time elapsed in the current tick in nanoseconds.
  */
-external fun getCpuTime(): Double
+external fun getCpuTime(): Int
 
 /**
  * Get linear direction by differences of x and y.
@@ -153,7 +153,7 @@ external fun getCpuTime(): Double
  * @param dy The difference of Y coordinate.
  * @returns a number representing one of the direction constants.
  */
-external fun getDirection(dx: Double, dy: Double): Direction
+external fun getDirection(dx: Int, dy: Int): Direction
 
 /**
  * Use this method to get heap statistics for your virtual machine.
@@ -186,7 +186,7 @@ external fun <T : GameObject> getObjectsByPrototype(
  * @param b The second of two objects. May be {@link GameObject} or any object containing x and y properties.
  * @returns a number of squares between two objects.
  */
-external fun getRange(a: Position, b: Position): Double
+external fun getRange(a: Position, b: Position): Int
 
 /**
  * Get an integer representation of the terrain at the given position.
@@ -198,4 +198,4 @@ external fun getTerrainAt(pos: Position): Terrain
 /**
  * @returns the number of ticks passed from the start of the current game.
  */
-external fun getTicks(): Double
+external fun getTicks(): Int

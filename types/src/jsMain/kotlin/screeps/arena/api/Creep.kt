@@ -11,7 +11,7 @@ external interface BodyPartDefinition {
     /** The body part type. */
     val type: BodyPartConstant
     /** The body part hits. */
-    val hits: Double
+    val hits: Int
 }
 
 /**
@@ -23,13 +23,13 @@ external open class Creep : GameObject {
     val body: Array<BodyPartDefinition>
 
     /** The movement fatigue indicator. If it is greater than zero, the creep cannot move. */
-    val fatigue: Double
+    val fatigue: Int
 
     /** The current amount of hit points of the creep. */
-    val hits: Double
+    val hits: Int
 
     /** The maximum amount of hit points of the creep. */
-    val hitsMax: Double
+    val hitsMax: Int
 
     /** Whether it is your creep. */
     val my: Boolean
@@ -61,7 +61,7 @@ external open class Creep : GameObject {
      * @param amount The amount of resource units to be dropped. If omitted, all the available carried amount is used.
      * @returns Either {@link OK} or one of ERR_* error codes.
      */
-    fun drop(resource: ResourceType, amount: Double = definedExternally): ScreepsReturnCode
+    fun drop(resource: ResourceType, amount: Int = definedExternally): ScreepsReturnCode
 
     /**
      * Harvest energy from the source. Requires the {@link WORK} body part.
@@ -132,7 +132,7 @@ external open class Creep : GameObject {
      * @param resource One of the RESOURCE_* constants.
      * @param amount The amount of resources to be transferred. If omitted, all the available carried amount is used.
      */
-    fun transfer(target: dynamic, resource: ResourceType, amount: Double = definedExternally): ScreepsReturnCode
+    fun transfer(target: dynamic, resource: ResourceType, amount: Int = definedExternally): ScreepsReturnCode
 
     /**
      * Withdraw resources from a structure.
@@ -141,5 +141,5 @@ external open class Creep : GameObject {
      * @param amount The amount of resources to be transferred. If omitted, all the available carried amount is used.
      * @returns Either {@link OK} or one of ERR_* error codes.
      */
-    fun withdraw(target: Structure, resource: ResourceType, amount: Double = definedExternally): ScreepsReturnCode
+    fun withdraw(target: Structure, resource: ResourceType, amount: Int = definedExternally): ScreepsReturnCode
 }

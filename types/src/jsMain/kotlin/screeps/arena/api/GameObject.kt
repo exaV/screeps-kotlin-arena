@@ -9,15 +9,15 @@ import kotlin.js.definedExternally
 
 external interface Position {
     /** The X coordinate in the room. */
-    var x: Double
+    var x: Int
     /** The Y coordinate in the room. */
-    var y: Double
+    var y: Int
 }
 
 @JsPlainObject
 external interface EffectData {
     /** The effect multiplier. */
-    var multiplier: Double
+    var multiplier: Int
 }
 
 /** Represents an effect applied to a game object. */
@@ -40,13 +40,13 @@ external open class GameObject : Position {
     var id: dynamic
 
     /** If defined, then this object will disappear after this number of ticks. */
-    var ticksToDecay: Double?
+    var ticksToDecay: Int?
 
     /** The X coordinate in the room. */
-    override var x: Double
+    override var x: Int
 
     /** The Y coordinate in the room. */
-    override var y: Double
+    override var y: Int
 
     /** An array with the effects applied to this object. */
     var effects: Array<Effect>?
@@ -83,7 +83,7 @@ external open class GameObject : Position {
      * @param range The range distance.
      * @returns an array with the objects found.
      */
-    fun <T : Position> findInRange(positions: Array<T>, range: Double): Array<T>
+    fun <T : Position> findInRange(positions: Array<T>, range: Int): Array<T>
 
     /**
      * Find a path from this object to the given position.
@@ -106,5 +106,5 @@ external open class GameObject : Position {
      * @param pos The target object. May be {@link GameObject} or any object containing x and y properties.
      * @returns a number of squares between two objects.
      */
-    fun getRangeTo(pos: Position): Double
+    fun getRangeTo(pos: Position): Int
 }

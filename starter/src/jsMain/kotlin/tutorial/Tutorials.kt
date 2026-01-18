@@ -101,7 +101,7 @@ fun tutorial5StoreAndTransfer() {
     val tower = getObjectsByPrototype(StructureTower::class.js)[0]
     if (tower.store[RESOURCE_ENERGY] < 10) {
         val myCreep = getObjectsByPrototype(Creep::class.js).first { it.my }
-        if (myCreep.store[RESOURCE_ENERGY] == 0.0) {
+        if (myCreep.store[RESOURCE_ENERGY] == 0) {
             val container = getObjectsByPrototype(StructureContainer::class.js)[0]
             myCreep.withdraw(container, RESOURCE_ENERGY)
         } else {
@@ -219,7 +219,7 @@ fun tutorial8HarvestEnergy() {
  */
 fun tutorial9Construction() {
     val creep = getObjectsByPrototype(Creep::class.js).first { it.my }
-    if (creep.store[RESOURCE_ENERGY] == 0.0) {
+    if (creep.store[RESOURCE_ENERGY] == 0) {
         val container = findClosestByPath(creep, getObjectsByPrototype(StructureContainer::class.js))
         if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(container)
@@ -227,7 +227,7 @@ fun tutorial9Construction() {
     } else {
         val consructionSite = getObjectsByPrototype(ConstructionSite::class.js).firstOrNull() { it.my == true }
         if (consructionSite == null) {
-            createConstructionSite(50.0, 55.0, StructureTower::class.js)
+            createConstructionSite(50, 55, StructureTower::class.js)
         } else {
             if (creep.build(consructionSite) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(consructionSite)

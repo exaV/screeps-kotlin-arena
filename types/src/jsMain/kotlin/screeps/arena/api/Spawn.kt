@@ -17,10 +17,10 @@ external interface SpawnCreepResult {
 /** Details of the creep being spawned currently. */
 external open class Spawning {
     /** Time needed in total to complete the spawning. */
-    val needTime: Double
+    val needTime: Int
 
     /** Remaining time to go. */
-    val remainingTime: Double
+    val remainingTime: Int
 
     /** The creep that being spawned. */
     val creep: Creep

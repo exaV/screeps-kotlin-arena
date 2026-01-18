@@ -63,8 +63,8 @@ external val RANGED_HEAL_POWER: Int
 external val CARRY_CAPACITY: Int
 external val REPAIR_POWER: Int
 external val DISMANTLE_POWER: Int
-external val REPAIR_COST: Double
-external val DISMANTLE_COST: Double
+external val REPAIR_COST: Int
+external val DISMANTLE_COST: Int
 external val HARVEST_POWER: Int
 external val BUILD_POWER: Int
 
@@ -79,7 +79,7 @@ external val TOWER_POWER_HEAL: Int
 external val TOWER_POWER_REPAIR: Int
 external val TOWER_OPTIMAL_RANGE: Int
 external val TOWER_FALLOFF_RANGE: Int
-external val TOWER_FALLOFF: Double
+external val TOWER_FALLOFF: Int
 external val TOWER_COOLDOWN: Int
 
 external val BODYPART_COST: Record<BodyPartConstant, Int>
