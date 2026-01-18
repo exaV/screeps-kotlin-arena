@@ -38,7 +38,7 @@ external interface HeapInfo {
 @JsPlainObject
 external interface FindPathOptions : SearchPathOptions {
     /** Objects which should not be treated as obstacles during the search. */
-    var ignore: Array<GameObject>?
+    var ignore: Array<out GameObject>?
 }
 
 /** {@link createConstructionSite} call result. */
