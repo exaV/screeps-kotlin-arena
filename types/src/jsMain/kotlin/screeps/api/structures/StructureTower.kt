@@ -1,7 +1,12 @@
-@file:kotlin.js.JsModule("game/prototypes/tower")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/tower")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api.structures
+
+import screeps.api.Creep
+import screeps.api.GameObject
+import screeps.api.ScreepsReturnCode
+import screeps.api.Store
 
 /** Remotely attacks game objects or heals creeps within its range. */
 external open class StructureTower : OwnedStructure {

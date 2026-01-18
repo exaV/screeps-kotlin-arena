@@ -3,7 +3,8 @@
 package tutorial
 
 
-import screeps.arena.api.*
+import screeps.api.*
+import screeps.api.structures.*
 
 fun tutorial1LoopAndImport() {
     println("hello world at ${getTicks()}")
@@ -227,7 +228,7 @@ fun tutorial9Construction() {
             creep.moveTo(container)
         }
     } else {
-        val consructionSite = getObjectsByPrototype(ConstructionSite::class.js).firstOrNull() { it.my == true }
+        val consructionSite = getObjectsByPrototype(ConstructionSite::class.js).firstOrNull { it.my == true }
         if (consructionSite == null) {
             createConstructionSite(50, 55, StructureTower::class.js)
         } else {

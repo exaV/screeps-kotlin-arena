@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game/prototypes/resource")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/resource")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 /** A dropped piece of resource. Dropped resource pile decays for ceil(amount/1000) units per tick. */
 external open class Resource : GameObject {

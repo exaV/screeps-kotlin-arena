@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 external interface ArenaInfo {
     val cpuTimeLimit: Int

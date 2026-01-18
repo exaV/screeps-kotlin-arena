@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game/prototypes/store")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/store")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 /** An object that class contain resources in its cargo. */
 external interface Store: Record<ResourceType, Int> {

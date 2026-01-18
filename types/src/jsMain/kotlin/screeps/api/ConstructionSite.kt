@@ -1,7 +1,9 @@
-@file:kotlin.js.JsModule("game/prototypes/construction-site")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/construction-site")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
+
+import screeps.api.structures.Structure
 
 /** A site of a structure which is currently under construction. */
 external open class ConstructionSite : GameObject {

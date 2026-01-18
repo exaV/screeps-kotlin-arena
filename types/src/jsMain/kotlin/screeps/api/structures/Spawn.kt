@@ -1,9 +1,14 @@
-@file:kotlin.js.JsModule("game/prototypes/spawn")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/spawn")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api.structures
 
 import kotlinx.js.JsPlainObject
+import screeps.api.BodyPartType
+import screeps.api.Creep
+import screeps.api.DirectionConstant
+import screeps.api.ScreepsReturnCode
+import screeps.api.Store
 
 @JsPlainObject
 external interface SpawnCreepResult {

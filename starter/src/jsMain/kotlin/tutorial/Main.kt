@@ -1,6 +1,6 @@
 package tutorial
 
-import screeps.arena.api.arenaInfo
+import screeps.api.arenaInfo
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport

@@ -1,7 +1,9 @@
-@file:kotlin.js.JsModule("game/prototypes/structure")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/structure")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api.structures
+
+import screeps.api.GameObject
 
 /** The base prototype object of all structures. */
 external open class Structure : GameObject {

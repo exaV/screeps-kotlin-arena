@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game/constants")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/constants")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 external interface Constant<T>
 

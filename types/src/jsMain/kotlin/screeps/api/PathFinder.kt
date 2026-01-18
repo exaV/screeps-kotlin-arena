@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game/path-finder")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/path-finder")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 import kotlinx.js.JsPlainObject
 import kotlin.js.definedExternally

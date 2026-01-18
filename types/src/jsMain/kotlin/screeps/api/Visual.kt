@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game/visual")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/visual")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 import kotlinx.js.JsPlainObject
 import kotlin.js.definedExternally

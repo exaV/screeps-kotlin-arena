@@ -1,7 +1,7 @@
-@file:kotlin.js.JsModule("game/prototypes/flag")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/flag")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 /** A flag is a key game object for this arena. Capture all flags to win the game. */
 external open class Flag : GameObject {

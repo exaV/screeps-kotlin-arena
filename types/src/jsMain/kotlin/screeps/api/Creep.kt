@@ -1,9 +1,10 @@
-@file:kotlin.js.JsModule("game/prototypes/creep")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/creep")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api
 
 import kotlinx.js.JsPlainObject
+import screeps.api.structures.Structure
 import kotlin.js.definedExternally
 
 @JsPlainObject

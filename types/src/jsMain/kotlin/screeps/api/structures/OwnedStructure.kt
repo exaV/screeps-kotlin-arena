@@ -1,7 +1,5 @@
-@file:kotlin.js.JsModule("game/prototypes/owned-structure")
-@file:kotlin.js.JsNonModule
+package screeps.api.structures
 
-package screeps.arena.api
 
 /** The base prototype for a structure that has an owner. */
 external abstract class OwnedStructure : Structure {

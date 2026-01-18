@@ -1,4 +1,4 @@
-package screeps.arena.api
+package screeps.api
 
 @Suppress("unused")
 external interface JsPair<out F, out S>

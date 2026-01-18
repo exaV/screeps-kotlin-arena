@@ -1,5 +1,6 @@
-package screeps.arena.api
+package screeps.api
 
+import screeps.api.structures.SpawnCreepResult
 import kotlin.reflect.KClass
 
 typealias Direction = DirectionConstant

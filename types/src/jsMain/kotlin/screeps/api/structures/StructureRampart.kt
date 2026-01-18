@@ -1,7 +1,8 @@
-@file:kotlin.js.JsModule("game/prototypes/rampart")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/rampart")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api.structures
+
 
 /** Blocks movement of hostile creeps, and defends your creeps and structures on the same position. */
 external open class StructureRampart : OwnedStructure

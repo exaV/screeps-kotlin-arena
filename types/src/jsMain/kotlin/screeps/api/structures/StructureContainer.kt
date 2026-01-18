@@ -1,7 +1,9 @@
-@file:kotlin.js.JsModule("game/prototypes/container")
-@file:kotlin.js.JsNonModule
+@file:JsModule("game/prototypes/container")
+@file:JsNonModule
 
-package screeps.arena.api
+package screeps.api.structures
+
+import screeps.api.Store
 
 /**
  * A small container that can be used to store resources.
