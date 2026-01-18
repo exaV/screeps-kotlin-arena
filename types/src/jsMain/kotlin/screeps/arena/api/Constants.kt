@@ -11,7 +11,6 @@ typealias IntConstant = Constant<Int>
 
 sealed external interface ScreepsReturnCode : IntConstant
 external interface BodyPartConstant : StringConstant
-external interface ActiveBodyPartConstant : BodyPartConstant
 external interface DirectionConstant : IntConstant
 external interface TerrainConstant : IntConstant
 external interface ResourceConstant : StringConstant
@@ -32,13 +31,13 @@ external object ERR_TIRED: ScreepsReturnCode
 external object ERR_NO_BODYPART: ScreepsReturnCode
 external object ERR_NOT_ENOUGH_EXTENSIONS: ScreepsReturnCode
 
-external val MOVE: ActiveBodyPartConstant
-external val RANGED_ATTACK: ActiveBodyPartConstant
-external val HEAL: ActiveBodyPartConstant
-external val ATTACK: ActiveBodyPartConstant
-external val CARRY: ActiveBodyPartConstant
-external val TOUGH: ActiveBodyPartConstant
-external val WORK: ActiveBodyPartConstant
+external val MOVE: BodyPartConstant
+external val RANGED_ATTACK: BodyPartConstant
+external val HEAL: BodyPartConstant
+external val ATTACK: BodyPartConstant
+external val CARRY: BodyPartConstant
+external val TOUGH: BodyPartConstant
+external val WORK: BodyPartConstant
 
 external val TOP: DirectionConstant
 external val TOP_RIGHT: DirectionConstant
