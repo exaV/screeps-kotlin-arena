@@ -4,11 +4,7 @@
 package screeps.api.structures
 
 import kotlinx.js.JsPlainObject
-import screeps.api.BodyPartType
-import screeps.api.Creep
-import screeps.api.DirectionConstant
-import screeps.api.ScreepsReturnCode
-import screeps.api.Store
+import screeps.api.*
 
 @JsPlainObject
 external interface SpawnCreepResult {
@@ -27,8 +23,13 @@ external open class Spawning {
     /** Remaining time to go. */
     val remainingTime: Int
 
-    /** The creep that being spawned. */
-    val creep: Creep
+    /** The creep that being spawned.
+     *
+     *  Due to a longstanding bug values from `Spawn.spawning.creep` have a different Prototype and
+     *  different property types than a regular `screeps.api.Creep`.
+     *  Use result of `Spawn.spawnCreep` instead.
+     */
+    val creep: SpawningCreep
 
     /** Cancel spawning immediately. */
     fun cancel(): ScreepsReturnCode?
@@ -57,4 +58,20 @@ external open class StructureSpawn : OwnedStructure {
      * @returns a {@link SpawnCreepResult} object with the call result.
      */
     fun spawnCreep(body: Array<BodyPartType>): SpawnCreepResult
+}
+
+/**
+ * Due to a longstanding bug values from `Spawn.spawning.creep` have a different Prototype and
+ * different property types than a regular `screeps.api.Creep`.
+ * Use result of `Spawn.spawnCreep` instead.
+ */
+external interface SpawningCreep {
+    val id: Number // intentionally not int
+    val body: Array<BodyPartDefinition>
+
+    /** The maximum amount of hit points of the creep. */
+    val hitsMax: Int
+
+    /** Whether it is your creep. */
+    val my: Boolean
 }
