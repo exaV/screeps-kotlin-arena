@@ -278,7 +278,7 @@ object Tutorials10FinalTest {
                 }
 
                 when(val code = creep.attack(target)){
-                    ERR_NOT_IN_RANGE -> creep.moveTo(target)
+                    ERR_NOT_IN_RANGE -> throw RuntimeException("whoopsie")
                     OK -> println("${creep.id}: ${target.id} get off my land!")
                     ERR_INVALID_TARGET -> {} // ignore
                     else -> println("error $code")
