@@ -37,16 +37,16 @@ external interface SearchPathOptions {
 @JsPlainObject
 external interface SearchPathResult {
     /** The path found as an array of objects containing x and y properties. */
-    var path: Array<Position>
+    val path: Array<Position>
 
     /** Total number of operations performed before this path was calculated. */
-    var ops: Int
+    val ops: Int
 
     /** The total cost of the path as derived from plainCost, swampCost, and given CostMatrix instance. */
-    var cost: Int
+    val cost: Int
 
     /** If the pathfinder fails to find a complete path, this will be true. */
-    var incomplete: Boolean
+    val incomplete: Boolean
 }
 
 /**
@@ -98,6 +98,23 @@ external class CostMatrix {
  */
 external fun searchPath(
     origin: Position,
-    goal: dynamic,
+    goal: SearchGoal,
     options: SearchPathOptions = definedExternally,
 ): SearchPathResult
+
+external fun searchPath(
+    origin: Position,
+    goal: Array<SearchGoal>,
+    options: SearchPathOptions = definedExternally,
+): SearchPathResult
+
+/**
+ * Goal to pass to [searchPath]
+ *
+ * [range] must be greater than 1 if used with [SearchPathOptions.flee]
+ */
+@JsPlainObject
+external interface SearchGoal {
+    var pos: Position
+    var range: Int?
+}
