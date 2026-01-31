@@ -14,15 +14,15 @@ typealias TextAlign = String
 @JsPlainObject
 external interface CircleVisualStyle {
     /** Circle radius, default is 0.15. */
-    var radius: Int?
+    var radius: Double?
     /** Fill color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var fill: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Int?
+    var opacity: Double?
     /** Stroke color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var stroke: Color?
     /** Stroke line width, default is 0.1. */
-    var strokeWidth: Int?
+    var strokeWidth: Double?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -30,11 +30,11 @@ external interface CircleVisualStyle {
 @JsPlainObject
 external interface LineVisualStyle {
     /** Line width, default is 0.1. */
-    var width: Int?
+    var width: Double?
     /** Line color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var color: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Int?
+    var opacity: Double?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -44,11 +44,11 @@ external interface PolyVisualStyle {
     /** Fill color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var fill: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Int?
+    var opacity: Double?
     /** Stroke color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var stroke: Color?
     /** Stroke line width, default is 0.1. */
-    var strokeWidth: Int?
+    var strokeWidth: Double?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -58,11 +58,11 @@ external interface RectVisualStyle {
     /** Fill color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var fill: Color?
     /** Opacity value, default is 0.5. */
-    var opacity: Int?
+    var opacity: Double?
     /** Stroke color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var stroke: Color?
     /** Stroke line width, default is 0.1. */
-    var strokeWidth: Int?
+    var strokeWidth: Double?
     /** Either undefined (solid line), dashed, or dotted. Default is undefined. */
     var lineStyle: LineStyle?
 }
@@ -77,7 +77,7 @@ external interface TextVisualStyle {
      */
     var backgroundColor: Color?
     /** Background rectangle padding, default is 0.3. */
-    var backgroundPadding: Int?
+    var backgroundPadding: Double?
     /** Font color in the following format: #ffffff (hex triplet). Default is #ffffff. */
     var color: Color?
     /**
@@ -86,11 +86,11 @@ external interface TextVisualStyle {
      */
     var font: dynamic
     /** Opacity value, default is 1. */
-    var opacity: Int?
+    var opacity: Double?
     /** Stroke color in the following format: #ffffff (hex triplet). default is undefined (no stroke). */
     var stroke: Color?
     /** Stroke line width, default is 0.15. */
-    var strokeWidth: Int?
+    var strokeWidth: Double?
 }
 
 /**
