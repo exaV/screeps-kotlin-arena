@@ -5,11 +5,13 @@
     "allowJs": true,
     "checkJs": true,
     "paths": {
-      "game/*": ["./typings/game/*"]
+      "game/*": [
+        "./typings/game/*"
+      ]
     }
   },
-  "screepsArena":  {
-    "typingsVersion": "1.1.0",
+  "screepsArena": {
+    "typingsVersion": "1.2.0",
     "disableAutoUpdate": false
   }
 }

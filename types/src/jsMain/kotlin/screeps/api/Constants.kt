@@ -118,3 +118,10 @@ external val EXTENSION_ENERGY_CAPACITY: Int
 
 external val SPAWN_ENERGY_CAPACITY: Int
 external val SPAWN_HITS: Int
+
+external val EFF_CONSTRUCTION_BOOST: String
+external val EFF_HEAL_BOOST: String
+external val EFF_RANGED_ATTACK_BOOST: String
+external val EFF_ATTACK_BOOST: String
+external val EFF_WORK_BOOST: String
+external val EFF_MOVE_BOOST: String
