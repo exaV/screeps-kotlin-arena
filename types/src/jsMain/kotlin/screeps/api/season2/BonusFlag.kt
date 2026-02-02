@@ -1,4 +1,4 @@
-@file:JsModule("arena/season_2/capture_the_flag/basic/prototypes")
+@file:JsModule("arena/season_2/power_split/basic/prototypes")
 @file:JsNonModule
 
 package screeps.api.season2
