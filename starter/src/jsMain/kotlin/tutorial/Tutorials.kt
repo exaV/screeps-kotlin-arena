@@ -247,7 +247,7 @@ object Tutorials10FinalTest {
         val spawn = getObjectsByPrototype(StructureSpawn::class).first { it.my == true }
 
         val myCreeps = getObjectsByPrototype(Creep::class).filter { it.my }
-        val enemies = getObjectsByPrototype(Creep::class).filterNot { it.my }
+        val enemies = getObjectsByPrototype(Creep::class).filterNot { it.my }.toTypedArray()
 
         val workers = myCreeps.filter { it.body.any { it.type == WORK } }
         val attackers = myCreeps.filter { it.body.any { it.type == ATTACK } }
@@ -272,9 +272,9 @@ object Tutorials10FinalTest {
         }
         for (creep in attackers) {
             if (enemies.isNotEmpty()){
-                val target = creep.findClosestByPath(enemies.toTypedArray()) ?: break
+                val target = creep.findClosestByPath(enemies) ?: break
                 if (creep.attack(target) == ERR_NOT_IN_RANGE){
-                    creep.moveTo(target)
+                    creep.moveTo(target, FindPathOptions(ignore = enemies))
                 }
 
                 when(val code = creep.attack(target)){
