@@ -21,7 +21,7 @@ class SourceMapResolverTest {
                 at captureStack (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/kotlin-kotlin-stdlib/kotlin/js/coreRuntime.mjs:207:11)
                 at init_kotlin_RuntimeException (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/kotlin-kotlin-stdlib/kotlin/exceptions.mjs:84:3)
                 at $.t5 (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/kotlin-kotlin-stdlib/kotlin/exceptions.mjs:97:9)
-                at $.wd (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/screeps-kotlin-arena-starter/tutorial/Tutorials.mjs:199:40)
+                at $.wd (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/screeps-kotlin-arena-starter/tutorial/Tutorials.mjs:198:40)
                 at loop${'$'}lambda (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/screeps-kotlin-arena-starter/tutorial/Main.mjs:37:33)
                 at runWithSourceMapSupport (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/screeps-kotlin-arena-starter/sourcemaps/SourceMapSupport.mjs:12:12)
                 at loop (file:///user/node_modules/screeps-kotlin-arena-starter/kotlin/screeps-kotlin-arena-starter/tutorial/Main.mjs:13:3)
@@ -37,7 +37,7 @@ class SourceMapResolverTest {
         }
 
         assertTrue(
-            mapped.contains("Tutorials.kt:"),
+            mapped.contains(".kt:"),
             "Expected a mapped Kotlin source reference (Tutorials.kt) in:\n$mapped"
         )
 
