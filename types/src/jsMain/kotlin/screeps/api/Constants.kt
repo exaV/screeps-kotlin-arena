@@ -10,10 +10,10 @@ typealias StringConstant = Constant<String>
 typealias IntConstant = Constant<Int>
 
 sealed external interface ScreepsReturnCode : IntConstant
-external interface BodyPartConstant : StringConstant
-external interface DirectionConstant : IntConstant
-external interface TerrainConstant : IntConstant
-external interface ResourceConstant : StringConstant
+sealed external interface BodyPartConstant : StringConstant
+sealed external interface DirectionConstant : IntConstant
+sealed external interface TerrainConstant : IntConstant
+sealed external interface ResourceConstant : StringConstant
 
 external object OK : ScreepsReturnCode
 external object ERR_NOT_OWNER : ScreepsReturnCode
@@ -31,26 +31,26 @@ external object ERR_TIRED : ScreepsReturnCode
 external object ERR_NO_BODYPART : ScreepsReturnCode
 external object ERR_NOT_ENOUGH_EXTENSIONS : ScreepsReturnCode
 
-external val MOVE: BodyPartConstant
-external val RANGED_ATTACK: BodyPartConstant
-external val HEAL: BodyPartConstant
-external val ATTACK: BodyPartConstant
-external val CARRY: BodyPartConstant
-external val TOUGH: BodyPartConstant
-external val WORK: BodyPartConstant
+external object MOVE: BodyPartConstant
+external object RANGED_ATTACK: BodyPartConstant
+external object HEAL: BodyPartConstant
+external object ATTACK: BodyPartConstant
+external object CARRY: BodyPartConstant
+external object TOUGH: BodyPartConstant
+external object WORK: BodyPartConstant
 
-external val TOP: DirectionConstant
-external val TOP_RIGHT: DirectionConstant
-external val RIGHT: DirectionConstant
-external val BOTTOM_RIGHT: DirectionConstant
-external val BOTTOM: DirectionConstant
-external val BOTTOM_LEFT: DirectionConstant
-external val LEFT: DirectionConstant
-external val TOP_LEFT: DirectionConstant
+external object TOP: DirectionConstant
+external object TOP_RIGHT: DirectionConstant
+external object RIGHT: DirectionConstant
+external object BOTTOM_RIGHT: DirectionConstant
+external object BOTTOM: DirectionConstant
+external object BOTTOM_LEFT: DirectionConstant
+external object LEFT: DirectionConstant
+external object TOP_LEFT: DirectionConstant
 
-external val TERRAIN_PLAIN: TerrainConstant
-external val TERRAIN_WALL: TerrainConstant
-external val TERRAIN_SWAMP: TerrainConstant
+external object TERRAIN_PLAIN: TerrainConstant
+external object TERRAIN_WALL: TerrainConstant
+external object TERRAIN_SWAMP: TerrainConstant
 
 external val BODYPART_HITS: Int
 
