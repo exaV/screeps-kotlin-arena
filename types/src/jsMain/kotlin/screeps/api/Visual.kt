@@ -154,7 +154,7 @@ external class Visual {
      * @param style.lineStyle Either undefined (solid line), dashed, or dotted. Default is undefined.
      * @returns the {@link Visual} object itself, so that you can chain calls.
      */
-    fun poly(points: Array<Position>, style: PolyVisualStyle = definedExternally): Visual
+    fun poly(points: Array<out Position>, style: PolyVisualStyle = definedExternally): Visual
 
     /**
      * Draw a rectangle.
