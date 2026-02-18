@@ -97,19 +97,11 @@ external interface TextVisualStyle {
  * Visuals provide a way to show various visual debug info in the game.
  * All draw coordinates are measured in game coordinates and centered to tile centers,
  * i.e. (10,10) will point to the center of the creep at x:10; y:10 position. Fractional coordinates are allowed.
+ *
+ * @param layer The layer of visuals in this object. Visuals of higher layer overlaps visuals of lower layer. Default is 0.
+ * @param persistent Whether visuals in this object are persistent. Non-persistent visuals are visible during the current tick only.
  */
-external class Visual {
-    /**
-     * Creates a new empty instance of {@link Visual}.
-     * @param layer The layer of visuals in this object. Visuals of higher layer overlaps visuals of lower layer. Default is 0.
-     * @param persistent Whether visuals in this object are persistent. Non-persistent visuals are visible during the current tick only.
-     */
-    constructor(layer: Int = definedExternally, persistent: Boolean = definedExternally)
-    /** The layer of visuals in the object. */
-    val layer: Int
-    /** Whether visuals in this object are persistent. */
-    val persistent: Boolean
-
+external class Visual(val layer: Int = definedExternally, val persistent: Boolean = definedExternally) {
     /**
      * Remove all visuals from the object.
      * @returns the {@link Visual} object itself, so that you can chain calls.
