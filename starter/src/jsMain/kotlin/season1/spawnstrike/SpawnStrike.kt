@@ -4,235 +4,251 @@ import screeps.api.*
 import screeps.api.structures.*
 import sourcemaps.runWithSourceMapSupport
 
-@OptIn(ExperimentalJsExport::class)
-@JsExport
-fun loop() {
-    runWithSourceMapSupport {
-        initRoles()
-        if (initialized) {
-            SpawnStrike.tick()
-        }
-    }
-}
-
-
 // Spawns
 val spawns = getObjectsByPrototype(StructureSpawn::class.js)
-
 val mySpawn = spawns.first { it.my == true }
 val enemySpawn = spawns.first { it.my == false }
 
 // Creeps
-val myCreeps: MutableList<Creep> = mutableListOf()
+var myCreeps: MutableList<Creep> = mutableListOf()
+var enemyCreeps: MutableList<Creep> = mutableListOf()
 
 // Flags
-val flags: List<Flag> = getObjectsByPrototype(Flag::class).filter { it.my == false }
+var enemyFlags: List<Flag> = getObjectsByPrototype(Flag::class).filter { it.my == false }
 
-// Roles
-val tasks: MutableList<Role> = mutableListOf()
+// Extensions
+val myExtensions: List<StructureExtension> = getObjectsByPrototype(StructureExtension::class).filter { it.my == true }
 
+
+// Gameplay
 var initialized = false
-fun initRoles() {
+var creepFactories: MutableList<CreepFactory> = mutableListOf()
+
+val topYValues = listOf(12, 13, 14)
+val topXRange = 53..59
+val bottomYValues = listOf(85, 86, 87)
+val bottomXRange = 50..56
+
+val points = mutableListOf<Point>()
+
+fun initialize() {
     if (!initialized) {
         initialized = true
-        println("Init tasks.")
 
-        val flags = flags.toMutableList()
+        creepFactories.add(FastCreepFactory())
+        creepFactories.addAll(List(15) { PowerfulCreepFactory() })
 
-        // create role CTF
-        flags.toMutableList().map { flag ->
-            Role(
-                priority = 0,
-                role = RoleType.CTF,
-                requiredBodyParts = listOf(MOVE),
-                process = { creep ->
-                    findClosestByRange(creep, arrayOf(flag))
-                        .also { creep.moveTo(flag) }
+        // Defender Zone
+        if (mySpawn.y > 50) {
+            for (y in bottomYValues) {
+                for (x in bottomXRange) {
+                    points.add(Point(x, y))
                 }
-            ).also { println("New role: ${it.role}.") }
-        }.apply { tasks.addAll(this) }
-
-        // create role warrior
-        (1..2).map {
-            Role(
-                priority = 1,
-                role = RoleType.WARRIOR,
-                requiredBodyParts =
-                    List(15) { MOVE } +
-                            List(10) { RANGED_ATTACK } +
-                            List(5) { HEAL },
-                process = { creep ->
-
-                    val lowestHealthFriendly = myCreeps
-                        .filter { it.exists }
-                        .filter { it.hits != it.hitsMax }
-                        .minByOrNull { it.hits }
-
-                    val enemyCreeps = getObjectsByPrototype(Creep::class).filter { !it.my }
-
-                    val lowestHealthEnemy = enemyCreeps
-                        .filter { it.exists }
-                        .minByOrNull { it.hits }
-
-
-
-                    if (lowestHealthFriendly?.hits != lowestHealthFriendly?.hitsMax) {
-                        lowestHealthFriendly?.let {
-                            if (creep == lowestHealthFriendly) {
-                                // todo  saját magát valamiért nem healeli, ezt nem értem miért.
-                                println("Attack: $lowestHealthEnemy")
-                                attack(enemyCreeps, lowestHealthEnemy, creep)
-                            } else {
-                                if (creep.heal(lowestHealthFriendly) == ERR_NOT_IN_RANGE) {
-                                    creep.moveTo(lowestHealthFriendly);
-                                }
-                            }
-                        }
-                    } else {
-                        attack(enemyCreeps, lowestHealthEnemy, creep)
-                    }
+            }
+        } else {
+            for (y in topYValues) {
+                for (x in topXRange) {
+                    points.add(Point(x, y))
                 }
-            ).also { println("New role: ${it.role}.") }
-        }.apply { tasks.addAll(this) }
-
-
-        // create role ninja
-        (1..2).map {
-            Role(
-                priority = 2,
-                role = RoleType.NINJA,
-                requiredBodyParts =
-                    List(3) { RANGED_ATTACK } +
-                            List(5) { MOVE } +
-                            List(1) { TOUGH } +
-                            List(1) { HEAL },
-                process = { creep ->
-
-                    val enemyCreeps = getObjectsByPrototype(Creep::class).filter { !it.my }
-
-                    if (!enemyCreeps.isEmpty()) {
-                        val lowestHealth = enemyCreeps
-                            .filter { it.exists }
-                            .minByOrNull { it.hits }
-
-                        val targetCreep: Creep? = if (lowestHealth?.hits != lowestHealth?.hitsMax) {
-                            lowestHealth
-                        } else {
-                            findClosestByRange(creep, enemyCreeps.toTypedArray())
-                        }
-
-                        if (targetCreep == null) {
-                            println("Creep does not exist.")
-                        } else {
-                            if (creep.rangedAttack(targetCreep) == ERR_NOT_IN_RANGE) {
-                                creep.moveTo(targetCreep);
-                            }
-                        }
-
-                    } else {
-                        if (creep.attack(enemySpawn) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(enemySpawn);
-                        }
-                    }
-                }
-            ).also { println("New role: ${it.role}.") }
-        }.apply { tasks.addAll(this) }
-
+            }
+        }
     }
 }
 
-private fun attack(
-    enemyCreeps: List<Creep>,
-    lowestHealthEnemy: Creep?,
-    creep: Creep
-) {
-    if (!enemyCreeps.isEmpty()) {
-        val targetArrackCreep: Creep? = if (lowestHealthEnemy?.hits != lowestHealthEnemy?.hitsMax) {
-            lowestHealthEnemy
-        } else {
-            findClosestByRange(creep, enemyCreeps.toTypedArray())
+
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+fun loop() {
+
+    runWithSourceMapSupport {
+        // init
+        initialize()
+
+        // tick
+        SpawnStrike.tick()
+    }
+}
+
+// Creep Strategies
+interface CreepStrategy {
+    fun doIt(creep: Creep);
+}
+
+class NeutralStrategy : CreepStrategy {
+    override fun doIt(creep: Creep) {
+        val moveToPosition = object : Position {
+            override var x: Int = 0
+            override var y: Int = 0
+        }.apply {
+            val gatheringPlace = creep.gatheringPlace()
+            x = gatheringPlace?.x ?: 0
+            y = gatheringPlace?.y ?: 0
         }
 
+        takeIf { moveToPosition.x != 0 && moveToPosition.y != 0 }?.let { creep.moveTo(moveToPosition) }
+    }
+}
 
-        // todo mass attack
-        // todo findInRange?
+private const val combatPhaseTicker = 300
 
-        if (targetArrackCreep == null) {
-            println("Creep does not exist.")
-        } else {
-            if (creep.rangedAttack(targetArrackCreep) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(targetArrackCreep);
+class AttackCreepStrategy : CreepStrategy {
+    override fun doIt(creep: Creep) {
+
+        val enemyCreeps = getObjectsByPrototype(Creep::class)
+            .filter { it.exists }
+            .filter { !it.my }
+
+        if (getTicks() < combatPhaseTicker) {
+            val closestEnemy = findClosestByRange(creep, enemyCreeps.toTypedArray())
+            if (creep.attack(closestEnemy) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(closestEnemy);
             }
         }
 
-        // todo kite
 
-    } else {
-        if (creep.rangedAttack(enemySpawn) == ERR_NOT_IN_RANGE) {
+        if (creep.attack(enemySpawn) == ERR_NOT_IN_RANGE) {
             creep.moveTo(enemySpawn);
+        }
+
+    }
+}
+
+class HealCreepStrategy() : CreepStrategy {
+    override fun doIt(creep: Creep) {
+        val lowestHealthFriendly = myCreeps
+            .filter { it.exists }
+            .filter { it.hits != it.hitsMax }
+            .minByOrNull { it.hits }
+
+        if (lowestHealthFriendly?.hits != lowestHealthFriendly?.hitsMax) {
+            lowestHealthFriendly?.let {
+                if (creep.heal(lowestHealthFriendly) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(lowestHealthFriendly);
+                }
+            }
+        } else {
+            myCreeps
+                .filter { it.exists }
+                .maxByOrNull { it.hits }
+                ?.let { creep.moveTo(it) }
+        }
+    }
+
+}
+
+class CaptureTheFlagStrategy(private val flag: Flag?) : CreepStrategy {
+    override fun doIt(creep: Creep) {
+        flag?.let {
+            findClosestByRange(creep, arrayOf(flag))
+                .also { creep.moveTo(flag) }
         }
     }
 }
 
+
+// Creep Factory
+interface CreepFactory {
+    fun createCreep(friendlySpawn: StructureSpawn): Creep?
+}
+
+class FastCreepFactory : CreepFactory {
+    override fun createCreep(friendlySpawn: StructureSpawn): Creep? {
+        return friendlySpawn.spawnCreep(listOf(MOVE))
+    }
+}
+
+class PowerfulCreepFactory : CreepFactory {
+    override fun createCreep(friendlySpawn: StructureSpawn): Creep? {
+        return friendlySpawn.spawnCreep(List(5) { MOVE } + List(3) { ATTACK })
+    }
+}
+
+class HealerCreepFactory
+    : CreepFactory {
+    override fun createCreep(friendlySpawn: StructureSpawn): Creep? {
+        return friendlySpawn.spawnCreep(List(5) { MOVE } + List(3) { HEAL })
+    }
+}
 
 object SpawnStrike {
     fun tick() {
 
-        // liberate dead creeps
-        tasks.forEach { task ->
-            task.worker?.takeIf { it.hits == 0 }?.let { task.worker = null }
+        // refresh myCreeps
+        myCreeps = getObjectsByPrototype(Creep::class).filter { it.my }.toMutableList()
+
+        // refresh enemyCreeps
+        enemyCreeps = getObjectsByPrototype(Creep::class).filter { !it.my }.toMutableList()
+
+        // refresh enemy Flags
+        enemyFlags = getObjectsByPrototype(Flag::class).filter { it.my == false }
+
+
+        // Spawn creep
+        takeIf { mySpawn.spawning?.creep == null }?.let {
+            creepFactories.removeFirstOrNull()
+                ?.createCreep(mySpawn)
         }
 
-        // spawn creep
-        tasks.asSequence()
-            .filter { it.worker == null }
-            .minByOrNull { it.priority }
-            ?.let { task ->
-                spawnCreep(mySpawn, task.requiredBodyParts.toTypedArray())
-                    ?.also { creep -> myCreeps.add(creep) }
-                    ?.also { creep -> creep.delegateRole(tasks.firstOrNull { task -> task.worker == null }) }
-                    ?.also { creep -> println("Creep spawned: $creep.") }
+
+        // add neutral point to creep
+        myCreeps.filter { it.exists }.filter { it.gatheringPlace() == null }.forEach { creep ->
+            getNextFreePoint()?.let {
+                it.creep = creep
+            }
+        }
+
+        myCreeps.filter { it.exists }.forEach {
+            var combat = false
+
+            if (mySpawn.findInRange(enemyCreeps.toTypedArray(), 20).size > 0 ||
+                getTicks() > combatPhaseTicker
+            ) {
+                combat = true
             }
 
-        // let's work on the creep
-        myCreeps.forEach { it.work() }
+            when {
+                it.body.map { it.type }.toList().size == 1 -> {
+                    CaptureTheFlagStrategy(enemyFlags.firstOrNull())
+                }
+
+                (it.body.map { it.type }.toList().contains(RANGED_ATTACK) ||
+                        it.body.map { it.type }.toList().contains(ATTACK)) && combat -> {
+                    AttackCreepStrategy()
+                }
+
+                it.body.map { it.type }.toList().contains(HEAL) && combat -> {
+                    HealCreepStrategy()
+                }
+
+                else -> {
+                    NeutralStrategy()
+                }
+            }.doIt(it)
+        }
     }
 }
 
-private fun Creep.work() = this.task?.process()
-
-data class Role(
-    val role: RoleType,
-    val priority: Int = 0,
-    val requiredBodyParts: List<BodyPartType>,
-    val process: (worker: Creep) -> Unit
-) {
-    var worker: Creep? = null
-
-    fun process() = worker?.let { this.process(it) }
-}
-
-
-private val Creep.task: Role?
-    get() = tasks.firstOrNull { it.worker == this }
-
-
-private fun Creep.delegateRole(task: Role?) {
-    println("Role: delegated.")
-    task?.worker = this
-}
-
 // Basic functions
-private fun spawnCreep(spawn: StructureSpawn, body: Array<BodyPartType>): Creep? {
-    return spawn.spawnCreep(body).`object`
-}
-
 fun <T : Position> findClosestByRange(creep: Creep, positions: Array<T>): T {
     return creep.findClosestByRange(positions)
 }
 
-enum class RoleType {
-    WARRIOR,
-    CTF,
-    NINJA,
+
+// Basic classes
+data class Point(val x: Int, val y: Int) { // todo :Position
+    var creep: Creep? = null
+        get() = if (field?.exists == true) field else null
 }
+
+private fun getNextFreePoint(): Point? { // todo iterator
+    return points.find { it.creep == null }
+}
+
+
+// Ext functions
+private fun StructureSpawn.spawnCreep(bodyParts: List<BodyPartType>): Creep? {
+    return this.spawnCreep(bodyParts.toTypedArray()).`object`
+}
+
+// Ext fields
+private fun Creep.gatheringPlace() = points.find { it.creep == this }
