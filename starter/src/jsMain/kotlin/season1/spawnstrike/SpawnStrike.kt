@@ -36,7 +36,7 @@ fun initialize() {
         initialized = true
 
         creepFactories.add(FastCreepFactory())
-        creepFactories.addAll(List(15) { PowerfulCreepFactory() })
+        creepFactories.addAll(List(20) { PowerfulCreepFactory() })
 
         // Defender Zone
         if (mySpawn.y > 50) {
@@ -72,6 +72,15 @@ fun loop() {
 // Creep Strategies
 interface CreepStrategy {
     fun doIt(creep: Creep);
+}
+
+class DefenderStrategy : CreepStrategy {
+    override fun doIt(creep: Creep) {
+        val closestEnemy = findClosestByRange(creep, enemyCreeps.toTypedArray())
+        if (creep.attack(closestEnemy) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(closestEnemy);
+        }
+    }
 }
 
 class NeutralStrategy : CreepStrategy {
@@ -200,7 +209,7 @@ object SpawnStrike {
         myCreeps.filter { it.exists }.forEach {
             var combat = false
 
-            if (mySpawn.findInRange(enemyCreeps.toTypedArray(), 20).size > 0 ||
+            if (mySpawn.findInRange(enemyCreeps.toTypedArray(), 20).isNotEmpty() ||
                 getTicks() > combatPhaseTicker
             ) {
                 combat = true
@@ -211,8 +220,17 @@ object SpawnStrike {
                     CaptureTheFlagStrategy(enemyFlags.firstOrNull())
                 }
 
-                (it.body.map { it.type }.toList().contains(RANGED_ATTACK) ||
-                        it.body.map { it.type }.toList().contains(ATTACK)) && combat -> {
+                getTicks() > 400 && mySpawn.findInRange(listOf(it).toTypedArray(), 15).isNotEmpty() -> {
+                    if (mySpawn.findInRange(enemyCreeps.toTypedArray(), 15).isNotEmpty()) {
+                        DefenderStrategy()
+                    } else if(getTicks() > 900 && enemyCreeps.filter { it.exists }.isEmpty()) {
+                        AttackCreepStrategy()
+                    } else {
+                        NeutralStrategy()
+                    }
+                }
+
+                isAttackerCreep(it) && combat -> {
                     AttackCreepStrategy()
                 }
 
@@ -227,6 +245,9 @@ object SpawnStrike {
         }
     }
 }
+
+private fun isAttackerCreep(creep: Creep): Boolean = (creep.body.map { it.type }.toList().contains(RANGED_ATTACK) ||
+        creep.body.map { it.type }.toList().contains(ATTACK))
 
 // Basic functions
 fun <T : Position> findClosestByRange(creep: Creep, positions: Array<T>): T {
