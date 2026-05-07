@@ -14,7 +14,7 @@ var myCreeps: MutableList<Creep> = mutableListOf()
 var enemyCreeps: MutableList<Creep> = mutableListOf()
 
 // Flags
-var enemyFlags: List<Flag> = getObjectsByPrototype(Flag::class).filter { it.my == false }
+var myFlag: Flag = getObjectsByPrototype(Flag::class).first { it.my == true }
 
 // Extensions
 val myExtensions: List<StructureExtension> = getObjectsByPrototype(StructureExtension::class).filter { it.my == true }
@@ -31,11 +31,25 @@ val bottomXRange = 50..56
 
 val points = mutableListOf<Point>()
 
+val combat = fun(): Boolean {
+    return mySpawn.findInRange(enemyCreeps.toTypedArray(), 20).isNotEmpty() || getTicks() > combatPhaseTicker
+}
+val enemyFlag = fun(): Flag? = getObjectsByPrototype(Flag::class).firstOrNull { flag -> flag.my == false }
+val enemyFlags = fun(): List<Flag> = getObjectsByPrototype(Flag::class).filter { flag -> flag.my == false }
+val flags = fun(): List<Flag> = getObjectsByPrototype(Flag::class).toList()
+
+val center = object : Position {
+    override var x: Int = 0
+    override var y: Int = 0
+}
+
+
 fun initialize() {
     if (!initialized) {
         initialized = true
 
         creepFactories.add(FastCreepFactory())
+        creepFactories.add(FastCreepEscortFactory())
         creepFactories.addAll(List(20) { PowerfulCreepFactory() })
 
         // Defender Zone
@@ -109,6 +123,13 @@ class AttackCreepStrategy : CreepStrategy {
 
         if (getTicks() < combatPhaseTicker) {
             val closestEnemy = findClosestByRange(creep, enemyCreeps.toTypedArray())
+
+            if (creep.body.map { it.type }.contains(RANGED_ATTACK) && !creep.body.map { it.type }.contains(ATTACK)) {
+                if (creep.rangedAttack(closestEnemy) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(closestEnemy);
+                }
+            }
+
             if (creep.attack(closestEnemy) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(closestEnemy);
             }
@@ -148,10 +169,126 @@ class HealCreepStrategy() : CreepStrategy {
 class CaptureTheFlagStrategy(private val flag: Flag?) : CreepStrategy {
     override fun doIt(creep: Creep) {
         flag?.let {
-            findClosestByRange(creep, arrayOf(flag))
+            findClosestByPath(creep, arrayOf(flag))
                 .also { creep.moveTo(flag) }
         }
     }
+}
+
+class CaptureTheFlagEscortStrategy : CreepStrategy {
+    override fun doIt(creep: Creep) {
+
+        if (creep.findInRange(enemyCreeps.toTypedArray(), 10).isNotEmpty() &&
+            flags().any { it.findInRange(enemyCreeps.toTypedArray(), 4).isNotEmpty() }
+        ) {
+            AttackCreepStrategy().doIt(creep)
+            return
+        }
+
+        if (flags().filter { it.my == true }.size == 2 || getTicks() > 350) {
+            AttackCreepStrategy().doIt(creep)
+            return
+        }
+
+        myCreeps.find { it.body.map { it.type }.contains(MOVE) && it.body.size == 1 }
+            ?.let {
+                if (it.x == myFlag.x && it.y == myFlag.y) {
+                    val enemyFlag = getObjectsByPrototype(Flag::class).firstOrNull { flag -> flag.my == false }
+                    println("Go to the another flag: ${enemyFlag?.x} - ${enemyFlag?.y}")
+                    CaptureTheFlagStrategy(enemyFlag).doIt(creep)
+                    return
+                }
+
+                creep.moveTo(it);
+            } ?: CaptureTheFlagStrategy(enemyFlag()).doIt(creep)
+
+    }
+}
+
+
+// Strategy selectors
+abstract class Selector {
+    protected var next: Selector? = null
+
+    abstract fun select(creep: Creep): CreepStrategy
+
+    fun setNext(selector: Selector): Selector {
+        generateSequence(this) { it.next }.last().next = selector
+        return this;
+    }
+
+    protected fun continueChain(creep: Creep): CreepStrategy {
+        return next?.select(creep) ?: NeutralStrategy()
+    }
+
+}
+
+class CaptureTheFlagStrategySelector : Selector() {
+    override fun select(creep: Creep): CreepStrategy {
+        return if (creep.body.map { it.type }.toList().size == 1) {
+            CaptureTheFlagStrategy(enemyFlag())
+        } else {
+            continueChain(creep)
+        }
+    }
+}
+
+class CaptureMyFlagStrategySelector : Selector() {
+    override fun select(creep: Creep): CreepStrategy {
+        return if (creep.body.map { it.type }.toList().size == 1 && getTicks() < 150) {
+            CaptureTheFlagStrategy(myFlag)
+        } else {
+            continueChain(creep)
+        }
+    }
+}
+
+class CaptureTheFlagEscortStrategySelector : Selector() {
+    override fun select(creep: Creep): CreepStrategy {
+        return if (creep.body.map { it.type }.toList().size == 2) {
+            CaptureTheFlagEscortStrategy()
+        } else {
+            continueChain(creep)
+        }
+    }
+}
+
+class AttackCreepStrategySelector : Selector() {
+    override fun select(creep: Creep): CreepStrategy {
+        return if (getTicks() > 400 && mySpawn.findInRange(listOf(creep).toTypedArray(), 15).isNotEmpty() &&
+            getTicks() > 900 && enemyCreeps.filter { it.exists }.isEmpty()
+        ) {
+            AttackCreepStrategy()
+        } else if (isAttackerCreep(creep) && combat()) {
+            AttackCreepStrategy()
+        } else {
+            continueChain(creep)
+
+        }
+    }
+}
+
+class DefenderStrategySelector : Selector() {
+    override fun select(creep: Creep): CreepStrategy {
+        return if (getTicks() > 400 && mySpawn.findInRange(listOf(creep).toTypedArray(), 15).isNotEmpty() &&
+            mySpawn.findInRange(enemyCreeps.toTypedArray(), 15).isNotEmpty()
+        ) {
+            DefenderStrategy()
+        } else {
+            continueChain(creep)
+        }
+    }
+}
+
+class HealCreepStrategySelector : Selector() {
+    override fun select(creep: Creep): CreepStrategy {
+        return if (creep.body.map { it.type }.toList().contains(HEAL) && combat()) {
+            HealCreepStrategy()
+        } else {
+            continueChain(creep)
+        }
+    }
+
 }
 
 
@@ -163,6 +300,12 @@ interface CreepFactory {
 class FastCreepFactory : CreepFactory {
     override fun createCreep(friendlySpawn: StructureSpawn): Creep? {
         return friendlySpawn.spawnCreep(listOf(MOVE))
+    }
+}
+
+class FastCreepEscortFactory : CreepFactory {
+    override fun createCreep(friendlySpawn: StructureSpawn): Creep? {
+        return friendlySpawn.spawnCreep(listOf(MOVE, RANGED_ATTACK))
     }
 }
 
@@ -188,9 +331,6 @@ object SpawnStrike {
         // refresh enemyCreeps
         enemyCreeps = getObjectsByPrototype(Creep::class).filter { !it.my }.toMutableList()
 
-        // refresh enemy Flags
-        enemyFlags = getObjectsByPrototype(Flag::class).filter { it.my == false }
-
 
         // Spawn creep
         takeIf { mySpawn.spawning?.creep == null }?.let {
@@ -206,43 +346,15 @@ object SpawnStrike {
             }
         }
 
-        myCreeps.filter { it.exists }.forEach {
-            var combat = false
+        val strategySelectorChain =
+            CaptureMyFlagStrategySelector().setNext(CaptureTheFlagStrategySelector())
+                .setNext(CaptureTheFlagEscortStrategySelector())
+                .setNext(AttackCreepStrategySelector())
+                .setNext(DefenderStrategySelector())
+                .setNext(HealCreepStrategySelector())
 
-            if (mySpawn.findInRange(enemyCreeps.toTypedArray(), 20).isNotEmpty() ||
-                getTicks() > combatPhaseTicker
-            ) {
-                combat = true
-            }
 
-            when {
-                it.body.map { it.type }.toList().size == 1 -> {
-                    CaptureTheFlagStrategy(enemyFlags.firstOrNull())
-                }
-
-                getTicks() > 400 && mySpawn.findInRange(listOf(it).toTypedArray(), 15).isNotEmpty() -> {
-                    if (mySpawn.findInRange(enemyCreeps.toTypedArray(), 15).isNotEmpty()) {
-                        DefenderStrategy()
-                    } else if(getTicks() > 900 && enemyCreeps.filter { it.exists }.isEmpty()) {
-                        AttackCreepStrategy()
-                    } else {
-                        NeutralStrategy()
-                    }
-                }
-
-                isAttackerCreep(it) && combat -> {
-                    AttackCreepStrategy()
-                }
-
-                it.body.map { it.type }.toList().contains(HEAL) && combat -> {
-                    HealCreepStrategy()
-                }
-
-                else -> {
-                    NeutralStrategy()
-                }
-            }.doIt(it)
-        }
+        myCreeps.filter { it.exists }.forEach { strategySelectorChain.select(it).doIt(it) }
     }
 }
 
