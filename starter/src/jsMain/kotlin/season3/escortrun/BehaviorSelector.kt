@@ -3,8 +3,6 @@ package season3.escortrun
 import screeps.api.Creep
 import screeps.api.HEAL_POWER
 
-// ── Heal deficit számítás ────────────────────────────────────────────────────
-
 private fun calcHealDeficit(creeps: List<Creep>): Int =
     creeps.sumOf { (it.hitsMax - it.hits).coerceAtLeast(0) }
 
@@ -14,63 +12,58 @@ private fun calcHealersNeeded(creeps: List<Creep>): Int {
     return (deficit / HEAL_POWER).coerceAtLeast(1)
 }
 
-// ── BehaviorSelector ─────────────────────────────────────────────────────────
-
 object BehaviorSelector {
 
     fun assignAll(gameplay: Gameplay) {
-        val leader = FormationManager.getLeader() ?: return
-        val followers = FormationManager.getFormationOrder().drop(1)
-
-        val leaderBehavior = selectLeaderBehavior(leader, gameplay)
-        leader.behavior = leaderBehavior
-
-        assignFollowerBehaviors(followers, leaderBehavior, gameplay)
+        assignCombatBehaviors(gameplay)
+        assignSnakeBehaviors(gameplay)
     }
 
-    private fun selectLeaderBehavior(leader: Creep, gameplay: Gameplay): Behavior {
-        if (leader.hits < leader.hitsMax * 0.3) return Behavior.RETREAT
+    // ── Harci csapat ─────────────────────────────────────────────────────────
+    // Gyülekező ponton várnak amíg ellenség 20 range-en belülre nem ér
+    // Utána támadnak, HYBRID healel ha kell
 
+    private fun assignCombatBehaviors(gameplay: Gameplay) {
+        val combatCreeps = gameplay.myCreeps.filter {
+            it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
+        }
+        if (combatCreeps.isEmpty()) return
+
+        val rallyPoint = gameplay.getCombatRallyPoint()
         val enemies = gameplay.getEnemyCreeps()
-        if (enemies.any { leader.getRangeTo(it) <= 5 }) return Behavior.ATTACK
+        val enemyClose = enemies.any { enemy ->
+            combatCreeps.any { it.getRangeTo(enemy) <= 20 }
+        }
 
-        return Behavior.CAPTURE
+        val healersNeeded = calcHealersNeeded(combatCreeps)
+        var assignedHealers = 0
+
+        for (creep in combatCreeps) {
+            if (!enemyClose) {
+                // Nincs ellenség közel → gyülekező pontra megy / vár
+                val atRally = creep.getRangeTo(rallyPoint) <= 2
+                creep.behavior = if (atRally) Behavior.WAIT else Behavior.CAPTURE
+            } else {
+                // Ellenség közel → támadás vagy heal
+                if (creep.role == Role.COMBAT_HYBRID && assignedHealers < healersNeeded) {
+                    creep.behavior = Behavior.HEAL
+                    assignedHealers++
+                } else {
+                    creep.behavior = Behavior.FOCUS_FIRE
+                }
+            }
+        }
     }
 
-    private fun assignFollowerBehaviors(
-        followers: List<Creep>,
-        leaderBehavior: Behavior,
-        gameplay: Gameplay
-    ) {
-        when (leaderBehavior) {
-            Behavior.CAPTURE -> followers.forEach { it.behavior = Behavior.FOLLOW }
+    // ── Kígyó ────────────────────────────────────────────────────────────────
 
-            Behavior.RETREAT -> {
-                val leader = FormationManager.getLeader()
-                if (leader != null && leader.hits < leader.hitsMax * 0.15) {
-                    followers.forEach { it.behavior = Behavior.RETREAT }
-                } else {
-                    followers.forEach { it.behavior = Behavior.FOLLOW }
-                }
-            }
+    private fun assignSnakeBehaviors(gameplay: Gameplay) {
+        val leader = SnakeManager.getLeader()
+        val snakeCreeps = gameplay.myCreeps.filter { it.role == Role.SNAKE }
 
-            Behavior.ATTACK -> {
-                val healersNeeded = calcHealersNeeded(gameplay.myCreeps)
-                var assignedHealers = 0
-
-                for (follower in followers) {
-                    if (follower.canHeal() && assignedHealers < healersNeeded) {
-                        follower.behavior = Behavior.HEAL
-                        assignedHealers++
-                    } else if (follower.canAttack()) {
-                        follower.behavior = Behavior.FOCUS_FIRE
-                    } else {
-                        follower.behavior = Behavior.FOLLOW
-                    }
-                }
-            }
-
-            else -> followers.forEach { it.behavior = Behavior.FOLLOW }
+        for (creep in snakeCreeps) {
+            creep.behavior = if (creep.id == leader?.id) Behavior.SNAKE_LEAD
+            else Behavior.SNAKE_FOLLOW
         }
     }
 }

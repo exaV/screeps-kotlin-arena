@@ -9,7 +9,9 @@ enum class CreepType {
     HARVESTER,
     CARRIER,
     ATTACKER,
-    HYBRID,     // Tud támadni és healelni
+    HYBRID,      // MOVE, MOVE, RANGED_ATTACK, HEAL
+    RANGER,      // MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK
+    MOVE_ONLY,   // MOVE – kígyó tagja
     DEFENDER,
 }
 
@@ -23,6 +25,8 @@ interface CreepFactory {
             CreepType.CARRIER   -> Carrier
             CreepType.ATTACKER  -> Attacker
             CreepType.HYBRID    -> Hybrid
+            CreepType.RANGER    -> Ranger
+            CreepType.MOVE_ONLY -> MoveOnly
             CreepType.DEFENDER  -> TODO()
         }
     }
@@ -60,5 +64,19 @@ sealed class Hybrid : CreepFactory {
     companion object : CreepFactory {
         override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
             friendlySpawn.spawnCreep(listOf(MOVE, MOVE, RANGED_ATTACK, HEAL))
+    }
+}
+
+sealed class Ranger : CreepFactory {
+    companion object : CreepFactory {
+        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
+            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK))
+    }
+}
+
+sealed class MoveOnly : CreepFactory {
+    companion object : CreepFactory {
+        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
+            friendlySpawn.spawnCreep(listOf(MOVE))
     }
 }

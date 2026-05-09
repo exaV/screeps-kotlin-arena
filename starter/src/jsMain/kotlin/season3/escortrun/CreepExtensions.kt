@@ -5,34 +5,42 @@ import screeps.api.ATTACK
 import screeps.api.RANGED_ATTACK
 import screeps.api.HEAL
 
-// ── Szerepek (ki vagy a csapatban) ──────────────────────────────────────────
+// ── Szerepek ─────────────────────────────────────────────────────────────────
 
 enum class Role {
-    LEADER,     // Formation élén, ő választ viselkedést
-    FOLLOWER,   // Formation tagja, leadert követ
-    WORKER,     // Statikus – bányász / builder
-    HARVESTER,  // Statikus – erőforrás gyűjtő
-    CARRIER,    // Statikus – szállítás spawn felé
+    // Statikus gazdasági szerepek
+    WORKER,
+    HARVESTER,
+    CARRIER,
+
+    // Harci csapat (fix középen)
+    COMBAT_HYBRID,   // MOVE, MOVE, RANGED_ATTACK, HEAL
+    COMBAT_RANGER,   // MOVE, MOVE, MOVE, RANGED_ATTACK x3
+
+    // Kígyó
+    SNAKE,           // MOVE_ONLY – kígyó tagja
+
+    // Régi formation (megtartjuk kompatibilitáshoz)
+    LEADER,
+    FOLLOWER,
 }
 
-// ── Viselkedések (mit csinálsz most) ────────────────────────────────────────
+// ── Viselkedések ─────────────────────────────────────────────────────────────
 
 enum class Behavior {
-    // Leader-only
-    CAPTURE,    // Haladj a célpont felé (flag, pozíció)
-    RETREAT,    // Visszavonulás a spawnhoz
-
-    // Harci
-    ATTACK,     // Legközelebbi ellenség
-    FOCUS_FIRE, // Mindenki ugyanazt a targetet lövi
-    HEAL,       // Szövetséges gyógyítása
-    DEFEND,     // Pozíció tartása
-
-    // Formation
-    FOLLOW,     // Előtted lévőt kövesd a formationban
+    CAPTURE,
+    RETREAT,
+    ATTACK,
+    FOCUS_FIRE,
+    HEAL,
+    DEFEND,
+    FOLLOW,
+    WAIT,        // Várakozás gyülekező ponton
+    SNAKE_LEAD,  // Kígyó vezető – megy a flagre
+    SNAKE_FOLLOW,// Kígyó tag – követi az előtte lévőt
 }
 
-// ── Capability helpers ───────────────────────────────────────────────────────
+// ── Capability helpers ────────────────────────────────────────────────────────
 
 fun Creep.canAttack(): Boolean =
     body.any { it.type == ATTACK || it.type == RANGED_ATTACK }
