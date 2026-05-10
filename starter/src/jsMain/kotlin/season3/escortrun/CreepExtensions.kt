@@ -7,6 +7,7 @@ import screeps.api.MOVE
 import screeps.api.RANGED_ATTACK
 import screeps.api.HEAL
 import screeps.api.WORK
+import season3.escortrun.combat.CombatTuning
 
 // ── Szerepek ─────────────────────────────────────────────────────────────────
 
@@ -56,6 +57,14 @@ fun Creep.canHeal(): Boolean =
 
 fun Creep.canRangedAttack(): Boolean =
     body.any { it.type == RANGED_ATTACK }
+
+/** Jelenlegi celláról képes közvetlenül sebezni a saját EscortCreep VIP-et (melee 1, ranged 3). */
+fun Creep.isDirectDamageThreatToEscort(escort: Creep): Boolean {
+    val d = getRangeTo(escort)
+    if (d <= 1 && body.any { it.type == ATTACK }) return true
+    if (d <= CombatTuning.RANGED_ATTACK_RANGE && body.any { it.type == RANGED_ATTACK }) return true
+    return false
+}
 
 fun Creep.isExpansionRunnerBody(): Boolean {
     if (body.size != 5) return false

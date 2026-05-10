@@ -10,6 +10,12 @@ object CombatTuning {
     /** Ennyire közeli ellenséget mindig a stratégiai cél elé vesszük (lövés / közeledés). */
     const val IMMEDIATE_THREAT_RANGE: Int = 8
 
+    /**
+     * Harcos: ha ennyire közel vagyunk a saját EscortCreep-hez, a VIP-t ténylegesen sebző ellenséget
+     * választjuk (legalacsonyabb HP – stabil focus), még a saját 8-as „közeli fenyegetés” előtt is.
+     */
+    const val ESCORT_GUARD_FIGHTER_MAX_RANGE: Int = 22
+
     /** WAIT / CAPTURE közben is aktívan zárkózzunk fel, ha ellenség ennél belül van. */
     const val HOLD_AND_RALLY_ENGAGE_RANGE: Int = 8
 

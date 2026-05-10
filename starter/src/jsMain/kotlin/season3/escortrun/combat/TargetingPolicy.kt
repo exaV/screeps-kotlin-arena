@@ -4,11 +4,14 @@ import screeps.api.Creep
 import season3.escortrun.Gameplay
 
 /**
- * Célválasztás: **közeli fenyegetés** mindig előrébb van, mint a stratégiai [Gameplay.getPriorityTarget].
+ * Célválasztás: saját EscortCreep-et sebző ellenség (stabil, legalacsonyabb HP), majd közeli fenyegetés,
+ * végül [Gameplay.getPriorityTarget].
  */
 object TargetingPolicy {
 
     fun selectAttackTarget(self: Creep, gameplay: Gameplay): Creep? {
+        gameplay.getEscortDamageThreatPriority(self)?.let { return it }
+
         val hostiles = gameplay.getHostileCreeps()
         if (hostiles.isEmpty()) return null
 

@@ -67,10 +67,22 @@ class Gameplay {
 
     // ── Target prioritás (EscortRunStrategy + eredeti komment a forrásban) ───
     // 1. Ha az ellenfél VIP a saját zászlónk 25 range-en belül → ő a cél (capture deny)
-    // 2. Saját VIP melletti blokkolók
+    // 2. Saját EscortCreep-et közvetlenül sebző ellenségek (legalacsonyabb HP), ha a harcos a VIP közelében van
     // 3. Ellenséges bővítés (építőhely / második spawn) – ne versenyezzen le 2 spawn ellen passzívan
     // 4. Ellen VIP körüli healer → támadó → maga a VIP
     // 5. Nincs ellen VIP → legközelebbi nem-VIP
+
+    /**
+     * Escort védelem: ellenség, ami melee (1) vagy ranged (3) ütőtávon sebzi a saját VIP-et.
+     * Több ilyen közül a legalacsonyabb életerő, döntetlennél a harcostól legközelebbi – stabil focus.
+     */
+    fun getEscortDamageThreatPriority(from: Creep): Creep? {
+        val escort = myEscortCreep ?: return null
+        if (from.getRangeTo(escort) > CombatTuning.ESCORT_GUARD_FIGHTER_MAX_RANGE) return null
+        val threats = getHostileCreeps().filter { it.isDirectDamageThreatToEscort(escort) }
+        if (threats.isEmpty()) return null
+        return threats.minWithOrNull(compareBy({ it.hits }, { from.getRangeTo(it) }))
+    }
 
     fun getPriorityTarget(from: Creep): Creep? {
         val allEnemies = getObjectsByPrototype(Creep::class.js).toList()
@@ -87,13 +99,7 @@ class Gameplay {
             return enemyEscort
         }
 
-        val myVip = myEscortCreep
-        if (myVip != null) {
-            val blocker = enemyNonEscort
-                .filter { it.getRangeTo(myVip) <= 5 }
-                .minWithOrNull(compareBy({ it.hits }, { from.getRangeTo(it) }))
-            if (blocker != null && from.getRangeTo(blocker) <= 22) return blocker
-        }
+        getEscortDamageThreatPriority(from)?.let { return it }
 
         val hostileSites = getHostileConstructionSites()
         if (hostileSites.isNotEmpty()) {
