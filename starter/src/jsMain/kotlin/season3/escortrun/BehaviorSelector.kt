@@ -2,6 +2,7 @@ package season3.escortrun
 
 import screeps.api.Creep
 import screeps.api.HEAL_POWER
+import screeps.api.getObjectsByPrototype
 
 private fun calcHealDeficit(creeps: List<Creep>): Int =
     creeps.sumOf { (it.hitsMax - it.hits).coerceAtLeast(0) }
@@ -19,10 +20,6 @@ object BehaviorSelector {
         assignSnakeBehaviors(gameplay)
     }
 
-    // ── Harci csapat ─────────────────────────────────────────────────────────
-    // Gyülekező ponton várnak amíg ellenség 20 range-en belülre nem ér
-    // Utána támadnak, HYBRID healel ha kell
-
     private fun assignCombatBehaviors(gameplay: Gameplay) {
         val combatCreeps = gameplay.myCreeps.filter {
             it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
@@ -30,32 +27,36 @@ object BehaviorSelector {
         if (combatCreeps.isEmpty()) return
 
         val rallyPoint = gameplay.getCombatRallyPoint()
-        val enemies = gameplay.getEnemyCreeps()
-        val enemyClose = enemies.any { enemy ->
+
+        val allEnemies = getObjectsByPrototype(screeps.api.Creep::class.js).toList()
+            .filter { it.exists && it.my == false }
+
+        // Ellenség közel ha bármely combat creeptől <= 20, VAGY ha bárki látótávolságon belül
+        val enemyClose = allEnemies.any { enemy ->
             combatCreeps.any { it.getRangeTo(enemy) <= 20 }
         }
 
-        val healersNeeded = calcHealersNeeded(combatCreeps)
-        var assignedHealers = 0
+        val woundedAllies = gameplay.myCreeps.filter { it.hits < it.hitsMax * 0.85 }
+        val needsHeal = woundedAllies.isNotEmpty()
+        var healerAssigned = false
 
         for (creep in combatCreeps) {
-            if (!enemyClose) {
-                // Nincs ellenség közel → gyülekező pontra megy / vár
-                val atRally = creep.getRangeTo(rallyPoint) <= 2
-                creep.behavior = if (atRally) Behavior.WAIT else Behavior.CAPTURE
-            } else {
-                // Ellenség közel → támadás vagy heal
-                if (creep.role == Role.COMBAT_HYBRID && assignedHealers < healersNeeded) {
-                    creep.behavior = Behavior.HEAL
-                    assignedHealers++
-                } else {
-                    creep.behavior = Behavior.FOCUS_FIRE
+            when {
+                // Van ellenség közel → azonnal támad, nem nézi a rally pozíciót
+                enemyClose -> {
+                    if (creep.role == Role.COMBAT_HYBRID && needsHeal && !healerAssigned) {
+                        creep.behavior = Behavior.HEAL
+                        healerAssigned = true
+                    } else {
+                        creep.behavior = Behavior.FOCUS_FIRE
+                    }
                 }
+                // Nincs ellenség → rally felé megy vagy vár
+                creep.getRangeTo(rallyPoint) <= 3 -> creep.behavior = Behavior.WAIT
+                else -> creep.behavior = Behavior.CAPTURE
             }
         }
     }
-
-    // ── Kígyó ────────────────────────────────────────────────────────────────
 
     private fun assignSnakeBehaviors(gameplay: Gameplay) {
         val leader = SnakeManager.getLeader()

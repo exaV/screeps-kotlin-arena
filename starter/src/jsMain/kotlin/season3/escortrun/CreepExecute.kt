@@ -128,8 +128,14 @@ private fun Creep.executeCombat(gameplay: Gameplay) {
             opportunisticRangedAttack(gameplay)
         }
         Behavior.FOCUS_FIRE -> {
-            val target = gameplay.getFocusFireTarget() ?: return
+            val target = gameplay.getPriorityTarget(this) ?: return
             val dist = getRangeTo(target)
+
+            // Öngyógyítás ha saját HP alacsony – prioritás a lövéssel szemben
+            if (canHeal() && hits < hitsMax * 0.85) {
+                heal(this)
+            }
+
             if (dist <= 3 && canRangedAttack()) {
                 rangedAttack(target)
             } else if (dist <= 1 && canAttack()) {
@@ -140,7 +146,11 @@ private fun Creep.executeCombat(gameplay: Gameplay) {
             }
         }
         Behavior.HEAL -> {
-            // Healel ha kell, különben lő
+            // Öngyógyítás ha kell
+            if (canHeal() && hits < hitsMax * 0.85) {
+                heal(this)
+                return
+            }
             val wounded = gameplay.getMostWounded()
             if (wounded != null && canHeal()) {
                 val dist = getRangeTo(wounded)
@@ -168,14 +178,17 @@ private fun Creep.opportunisticRangedAttack(gameplay: Gameplay) {
 private fun Creep.executeSnake(gameplay: Gameplay) {
     when (behavior) {
         Behavior.SNAKE_LEAD -> {
-            // Vezető megy egyenesen a flagre
             val flag = gameplay.getCaptureTarget() ?: return
-            if(getRangeTo(flag) > 3){
-                moveTo(flag)
-            }
+            val escort = gameplay.myEscortCreep
+
+            // Ha a leader már 2 range-re van a flagtól → megáll, EscortCreep dolga a rest
+            if (getRangeTo(flag) <= 2) return
+
+            // Csak akkor megy előre ha az EscortCreep követi (max 4 range)
+            val escortDist = if (escort != null) getRangeTo(escort) else 0
+            if (escortDist <= 4) moveTo(flag)
         }
         Behavior.SNAKE_FOLLOW -> {
-            // Követi az előtte lévőt, kígyózás: csak ha >2 távolság
             val followTarget = SnakeManager.getFollowTarget(this, gameplay) ?: return
             if (getRangeTo(followTarget) > 1) moveTo(followTarget)
         }
@@ -195,6 +208,3 @@ private fun Creep.moveAwayFrom(target: GameObject) {
         override var y = escapeY
     })
 }
-
-
-
