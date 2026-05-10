@@ -1,9 +1,12 @@
 package season3.escortrun
 
+import screeps.api.CARRY
 import screeps.api.Creep
 import screeps.api.ATTACK
+import screeps.api.MOVE
 import screeps.api.RANGED_ATTACK
 import screeps.api.HEAL
+import screeps.api.WORK
 
 // ── Szerepek ─────────────────────────────────────────────────────────────────
 
@@ -19,6 +22,9 @@ enum class Role {
 
     // Kígyó
     SNAKE,           // MOVE_ONLY – kígyó tagja
+
+    /** MOVE×2 WORK×2 CARRY – távoli konténer + második spawn építés. */
+    EXPANSION_BUILDER,
 
     // Régi formation (megtartjuk kompatibilitáshoz)
     LEADER,
@@ -50,3 +56,19 @@ fun Creep.canHeal(): Boolean =
 
 fun Creep.canRangedAttack(): Boolean =
     body.any { it.type == RANGED_ATTACK }
+
+fun Creep.isExpansionRunnerBody(): Boolean {
+    if (body.size != 5) return false
+    var m = 0
+    var w = 0
+    var c = 0
+    for (p in body) {
+        when (p.type) {
+            MOVE -> m++
+            WORK -> w++
+            CARRY -> c++
+            else -> return false
+        }
+    }
+    return m == 2 && w == 2 && c == 1
+}

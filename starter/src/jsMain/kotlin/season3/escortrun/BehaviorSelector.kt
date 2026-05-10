@@ -1,18 +1,16 @@
 package season3.escortrun
 
 import screeps.api.Creep
-import screeps.api.HEAL_POWER
 import screeps.api.getObjectsByPrototype
+import season3.escortrun.combat.CombatTuning
+import season3.escortrun.combat.SquadContact
 
-private fun calcHealDeficit(creeps: List<Creep>): Int =
-    creeps.sumOf { (it.hitsMax - it.hits).coerceAtLeast(0) }
-
-private fun calcHealersNeeded(creeps: List<Creep>): Int {
-    val deficit = calcHealDeficit(creeps)
-    if (deficit == 0) return 0
-    return (deficit / HEAL_POWER).coerceAtLeast(1)
-}
-
+/**
+ * Harci viselkedés hozzárendelése. A szabályok szétválasztva:
+ * - század kontakt: [SquadContact]
+ * - távolságok: [CombatTuning]
+ * - makró / VIP deny: [EscortRunStrategy]
+ */
 object BehaviorSelector {
 
     fun assignAll(gameplay: Gameplay) {
@@ -27,31 +25,41 @@ object BehaviorSelector {
         if (combatCreeps.isEmpty()) return
 
         val rallyPoint = gameplay.getCombatRallyPoint()
+        val mapMid = gameplay.getMapCenterRally()
 
-        val allEnemies = getObjectsByPrototype(screeps.api.Creep::class.js).toList()
-            .filter { it.exists && it.my == false }
+        val allHostiles = gameplay.getHostileCreeps()
 
-        // Ellenség közel ha bármely combat creeptől <= 20, VAGY ha bárki látótávolságon belül
-        val enemyClose = allEnemies.any { enemy ->
-            combatCreeps.any { it.getRangeTo(enemy) <= 20 }
+        val globalFight = SquadContact.globalFightStance(
+            gameplay, combatCreeps, allHostiles, rallyPoint, mapMid,
+        )
+
+        val combatAllies = gameplay.myCreeps.filter {
+            it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
         }
-
-        val woundedAllies = gameplay.myCreeps.filter { it.hits < it.hitsMax * 0.85 }
-        val needsHeal = woundedAllies.isNotEmpty()
+        val healRatio = CombatTuning.ALLY_HEAL_START_RATIO
+        val needsHeal = combatAllies.any {
+            it.hits < it.hitsMax * healRatio
+        }
         var healerAssigned = false
 
         for (creep in combatCreeps) {
+            val localThreat = allHostiles.any {
+                creep.getRangeTo(it) <= CombatTuning.IMMEDIATE_THREAT_RANGE
+            }
+            val woundedAllyInHealRange = combatAllies.any { ally ->
+                ally.id != creep.id &&
+                    creep.getRangeTo(ally) <= CombatTuning.RANGED_ATTACK_RANGE &&
+                    ally.hits < ally.hitsMax * healRatio
+            }
             when {
-                // Van ellenség közel → azonnal támad, nem nézi a rally pozíciót
-                enemyClose -> {
-                    if (creep.role == Role.COMBAT_HYBRID && needsHeal && !healerAssigned) {
-                        creep.behavior = Behavior.HEAL
-                        healerAssigned = true
-                    } else {
-                        creep.behavior = Behavior.FOCUS_FIRE
-                    }
+                creep.role == Role.COMBAT_HYBRID &&
+                    needsHeal &&
+                    !healerAssigned &&
+                    (!localThreat || woundedAllyInHealRange) -> {
+                    creep.behavior = Behavior.HEAL
+                    healerAssigned = true
                 }
-                // Nincs ellenség → rally felé megy vagy vár
+                localThreat || globalFight -> creep.behavior = Behavior.FOCUS_FIRE
                 creep.getRangeTo(rallyPoint) <= 3 -> creep.behavior = Behavior.WAIT
                 else -> creep.behavior = Behavior.CAPTURE
             }

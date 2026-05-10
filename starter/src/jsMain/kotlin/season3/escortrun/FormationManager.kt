@@ -18,7 +18,7 @@ var Creep.behavior: Behavior
 fun Creep.hasRole(): Boolean = roleMap.containsKey(id)
 
 // ── Combat FormationManager ───────────────────────────────────────────────────
-// A 8 harci creep (HYBRID + RANGER) – fix marad középen
+// Harci keret: EscortRunStrategy.MAX_COMBAT_ALIVE – rally / deny szerint mozog
 
 object CombatManager {
     private val combatCreeps = mutableListOf<Creep>()
@@ -40,7 +40,7 @@ object CombatManager {
 }
 
 // ── Snake FormationManager ────────────────────────────────────────────────────
-// 30 MOVE_ONLY creep + EscortCreep a 2. helyen
+// MOVE_ONLY lánc + EscortCreep a vezető mögött (EscortRunStrategy.SNAKE_TOTAL)
 
 object SnakeManager {
     // snakeOrder[0] = vezető MOVE_ONLY, snakeOrder[1] = EscortCreep (kezeljük külön),

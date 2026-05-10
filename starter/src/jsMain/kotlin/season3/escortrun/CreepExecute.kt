@@ -1,17 +1,19 @@
 package season3.escortrun
 
 import screeps.api.*
+import season3.escortrun.combat.CombatExecutor
 
 // ── Execute entry point ───────────────────────────────────────────────────────
 
 fun Creep.execute(gameplay: Gameplay) {
     when (role) {
-        Role.WORKER        -> executeWorker(gameplay)
-        Role.HARVESTER     -> executeHarvester(gameplay)
-        Role.COMBAT_HYBRID -> executeCombat(gameplay)
-        Role.COMBAT_RANGER -> executeCombat(gameplay)
-        Role.SNAKE         -> executeSnake(gameplay)
-        else               -> {}
+        Role.WORKER             -> executeWorker(gameplay)
+        Role.HARVESTER          -> executeHarvester(gameplay)
+        Role.COMBAT_HYBRID      -> executeCombat(gameplay)
+        Role.COMBAT_RANGER      -> executeCombat(gameplay)
+        Role.EXPANSION_BUILDER  -> ExpansionExecution.execute(this, gameplay)
+        Role.SNAKE              -> executeSnake(gameplay)
+        else                    -> {}
     }
 }
 
@@ -112,65 +114,10 @@ private fun Creep.executeHarvester2(gameplay: Gameplay) {
     }
 }
 
-// ── Combat (HYBRID + RANGER) ──────────────────────────────────────────────────
-// Fix a gyülekező ponton, ellenség közeledésekor támad
+// ── Combat (HYBRID + RANGER) → [combat.CombatExecutor] ───────────────────────
 
 private fun Creep.executeCombat(gameplay: Gameplay) {
-    when (behavior) {
-        Behavior.WAIT -> {
-            // Helyen vagyunk, opportunista lövés ha van közel ellenség
-            opportunisticRangedAttack(gameplay)
-        }
-        Behavior.CAPTURE -> {
-            // Gyülekező pontra megy
-            val rally = gameplay.getCombatRallyPoint()
-            if (getRangeTo(rally) > 2) moveTo(rally)
-            opportunisticRangedAttack(gameplay)
-        }
-        Behavior.FOCUS_FIRE -> {
-            val target = gameplay.getPriorityTarget(this) ?: return
-            val dist = getRangeTo(target)
-
-            // Öngyógyítás ha saját HP alacsony – prioritás a lövéssel szemben
-            if (canHeal() && hits < hitsMax * 0.85) {
-                heal(this)
-            }
-
-            if (dist <= 3 && canRangedAttack()) {
-                rangedAttack(target)
-            } else if (dist <= 1 && canAttack()) {
-                attack(target)
-                moveAwayFrom(target)
-            } else {
-                moveTo(target)
-            }
-        }
-        Behavior.HEAL -> {
-            // Öngyógyítás ha kell
-            if (canHeal() && hits < hitsMax * 0.85) {
-                heal(this)
-                return
-            }
-            val wounded = gameplay.getMostWounded()
-            if (wounded != null && canHeal()) {
-                val dist = getRangeTo(wounded)
-                if (dist <= 1) heal(wounded)
-                else if (dist <= 3) rangedHeal(wounded)
-                else moveTo(wounded)
-            } else {
-                opportunisticRangedAttack(gameplay)
-            }
-        }
-        else -> {}
-    }
-}
-
-private fun Creep.opportunisticRangedAttack(gameplay: Gameplay) {
-    if (!canRangedAttack()) return
-    val nearEnemy = gameplay.getEnemyCreeps()
-        .filter { getRangeTo(it) <= 3 }
-        .minByOrNull { it.hits }
-    if (nearEnemy != null) rangedAttack(nearEnemy)
+    CombatExecutor.execute(this, gameplay)
 }
 
 // ── Snake (MOVE_ONLY) ─────────────────────────────────────────────────────────
@@ -194,17 +141,4 @@ private fun Creep.executeSnake(gameplay: Gameplay) {
         }
         else -> {}
     }
-}
-
-// ── Movement helper ───────────────────────────────────────────────────────────
-
-private fun Creep.moveAwayFrom(target: GameObject) {
-    val dx = x - target.x
-    val dy = y - target.y
-    val escapeX = (x + dx.coerceIn(-1, 1)).coerceIn(0, 99)
-    val escapeY = (y + dy.coerceIn(-1, 1)).coerceIn(0, 99)
-    moveTo(object : Position {
-        override var x = escapeX
-        override var y = escapeY
-    })
 }

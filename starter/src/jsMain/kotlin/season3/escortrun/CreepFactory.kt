@@ -11,6 +11,10 @@ enum class CreepType {
     ATTACKER,
     HYBRID,      // MOVE, MOVE, RANGED_ATTACK, HEAL
     RANGER,      // MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK
+    /** Korai opener: gyors, heal nélkül. */
+    SKIRMISHER,  // MOVE, MOVE, RANGED_ATTACK
+    /** Korai opener: távoli konténer + második spawn. */
+    EXPANSION_RUNNER, // MOVE, MOVE, WORK, WORK, CARRY
     MOVE_ONLY,   // MOVE – kígyó tagja
     DEFENDER,
 }
@@ -24,8 +28,10 @@ interface CreepFactory {
             CreepType.HARVESTER -> Harvester
             CreepType.CARRIER   -> Carrier
             CreepType.ATTACKER  -> Attacker
-            CreepType.HYBRID    -> Hybrid
-            CreepType.RANGER    -> Ranger
+            CreepType.HYBRID            -> Hybrid
+            CreepType.RANGER           -> Ranger
+            CreepType.SKIRMISHER       -> Skirmisher
+            CreepType.EXPANSION_RUNNER -> ExpansionRunner
             CreepType.MOVE_ONLY -> MoveOnly
             CreepType.DEFENDER  -> TODO()
         }
@@ -71,6 +77,20 @@ sealed class Ranger : CreepFactory {
     companion object : CreepFactory {
         override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
             friendlySpawn.spawnCreep(listOf(MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK))
+    }
+}
+
+sealed class Skirmisher : CreepFactory {
+    companion object : CreepFactory {
+        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
+            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, RANGED_ATTACK))
+    }
+}
+
+sealed class ExpansionRunner : CreepFactory {
+    companion object : CreepFactory {
+        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
+            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, WORK, WORK, CARRY))
     }
 }
 
