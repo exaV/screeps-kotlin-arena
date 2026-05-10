@@ -41,6 +41,22 @@ object SquadContact {
             return true
         }
 
+        // Csak ellenséges VIP creep él → nincs értelme rally/WAIT: mindig intercept + FOCUS.
+        if (enemyVip != null && allHostiles.isNotEmpty() && allHostiles.all { it.hitsMax == 5000 }) {
+            return true
+        }
+
+        // VIP közelebb a mi célunkhoz, mint mi hozzá → veszítjük a „versenyt”; ne a staging ponthoz menjünk vissza.
+        if (enemyVip != null && flag != null) {
+            val dVipToObjective = enemyVip.getRangeTo(flag)
+            if (dVipToObjective <= EscortRunStrategy.VIP_RACE_CHASE_MAX_FLAG_DISTANCE) {
+                val ourClosest = combatCreeps.minOfOrNull { it.getRangeTo(enemyVip) } ?: 999
+                if (dVipToObjective < ourClosest) {
+                    return true
+                }
+            }
+        }
+
         if (allHostiles.any { it.getRangeTo(mySpawn) <= CombatTuning.ENEMY_PRESSURE_ON_SPAWN_RANGE }) {
             return true
         }

@@ -309,6 +309,11 @@ private val snakeQueue: MutableList<CreepType> =
 private var totalCombatSpawned = 0
 private var snakeDone = false
 private var fullEconomyBuilt = false
+/** Sikeresen lespawnoltunk legalább egy HYBRID-et (harci sorozatból). */
+private var hasSpawnedFirstHybrid = false
+
+/** Push (ellenséges VIP elindult) alatt már lefutott a kötelező első harci HYBRID slot. */
+private var interceptCombatLeadHybridDone = false
 
 private fun enemyEscortNearSpawn(gameplay: Gameplay): Boolean {
     val enemyEscort = getObjectsByPrototype(Creep::class.js).toList()
@@ -317,6 +322,45 @@ private fun enemyEscortNearSpawn(gameplay: Gameplay): Boolean {
         .firstOrNull { it.my == false }
     if (enemyEscort == null || enemySpawn == null) return true
     return enemyEscort.getRangeTo(enemySpawn) <= EscortRunStrategy.ENEMY_VIP_NEAR_OWN_SPAWN_RANGE
+}
+
+/**
+ * Az ellenséges VIP már elhagyta a saját spawnját ([enemyEscortNearSpawn] hamis) és még él –
+ * nincs idő nehéz RANGER + második HYBRID ütemre: könnyű skirmisherek kellenek.
+ */
+private fun enemyEscortPushActive(gameplay: Gameplay): Boolean {
+    if (getObjectsByPrototype(Creep::class.js).toList()
+            .none { it.exists && it.my == false && it.hitsMax == 5000 }
+    ) {
+        return false
+    }
+    return !enemyEscortNearSpawn(gameplay)
+}
+
+/**
+ * Rush ellen: a minta RANGER → SKIRMISHER; HYBRID slot → SKIRMISHER, ha már volt hybrid a pushban
+ * (az első harci HYBRID slotot külön kezeli a pickCombatSpawnType).
+ */
+private fun resolveCombatSpawnType(gameplay: Gameplay, patternType: CreepType): CreepType {
+    if (!enemyEscortPushActive(gameplay)) return patternType
+    return when (patternType) {
+        CreepType.RANGER -> CreepType.SKIRMISHER
+        CreepType.HYBRID -> if (!hasSpawnedFirstHybrid) CreepType.HYBRID else CreepType.SKIRMISHER
+        else -> patternType
+    }
+}
+
+/** Harci creep típus: push alatt először HYBRID, utána a minta + [resolveCombatSpawnType]. */
+private fun pickCombatSpawnType(gameplay: Gameplay): CreepType {
+    if (enemyEscortPushActive(gameplay) && !interceptCombatLeadHybridDone) {
+        val haveCombatHybrid = gameplay.myCreeps.any { it.exists && it.role == Role.COMBAT_HYBRID }
+        if (!haveCombatHybrid) {
+            return CreepType.HYBRID
+        }
+        interceptCombatLeadHybridDone = true
+    }
+    val index = totalCombatSpawned % combatPattern.size
+    return resolveCombatSpawnType(gameplay, combatPattern[index])
 }
 
 private fun needsRevival(gameplay: Gameplay): CreepType? {
@@ -350,6 +394,10 @@ private fun economyOpenerCreepType(gameplay: Gameplay): CreepType =
     }
 
 private fun getNextCreepToSpawn(gameplay: Gameplay): CreepType? {
+    if (!enemyEscortPushActive(gameplay)) {
+        interceptCombatLeadHybridDone = false
+    }
+
     val revival = needsRevival(gameplay)
     if (revival != null && economyQueue.isEmpty()) {
         if (economyOpenerResolved) return revival
@@ -376,15 +424,13 @@ private fun getNextCreepToSpawn(gameplay: Gameplay): CreepType? {
         it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
     }
     if (aliveCombat < EscortRunStrategy.MAX_COMBAT_ALIVE) {
-        val index = totalCombatSpawned % combatPattern.size
-        return combatPattern[index]
+        return pickCombatSpawnType(gameplay)
     }
 
     if (snakeQueue.isNotEmpty()) return snakeQueue.first()
 
     snakeDone = true
-    val index = totalCombatSpawned % combatPattern.size
-    return combatPattern[index]
+    return pickCombatSpawnType(gameplay)
 }
 
 private fun onSpawnSuccess(type: CreepType, gameplay: Gameplay) {
@@ -394,7 +440,15 @@ private fun onSpawnSuccess(type: CreepType, gameplay: Gameplay) {
             economyOpenerResolved = true
             if (type == CreepType.SKIRMISHER) totalCombatSpawned++
         }
-        type == CreepType.HYBRID || type == CreepType.RANGER || type == CreepType.SKIRMISHER -> totalCombatSpawned++
+        type == CreepType.HYBRID || type == CreepType.RANGER || type == CreepType.SKIRMISHER -> {
+            totalCombatSpawned++
+            if (type == CreepType.HYBRID) {
+                hasSpawnedFirstHybrid = true
+                if (enemyEscortPushActive(gameplay)) {
+                    interceptCombatLeadHybridDone = true
+                }
+            }
+        }
         type == CreepType.MOVE_ONLY -> snakeQueue.removeFirst()
     }
 }
