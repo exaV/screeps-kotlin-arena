@@ -19,10 +19,15 @@ object BehaviorSelector {
     }
 
     private fun assignCombatBehaviors(gameplay: Gameplay) {
-        val combatCreeps = gameplay.myCreeps.filter {
+        val fightLine = gameplay.myCreeps.filter {
+            it.role == Role.COMBAT_HYBRID ||
+                it.role == Role.COMBAT_RANGER ||
+                it.role == Role.COMBAT_FLAG_BLOCKER
+        }
+        val behaviorLine = gameplay.myCreeps.filter {
             it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
         }
-        if (combatCreeps.isEmpty()) return
+        if (behaviorLine.isEmpty()) return
 
         val rallyPoint = gameplay.getCombatRallyPoint()
         val mapMid = gameplay.getMapCenterRally()
@@ -30,11 +35,13 @@ object BehaviorSelector {
         val allHostiles = gameplay.getHostileCreeps()
 
         val globalFight = SquadContact.globalFightStance(
-            gameplay, combatCreeps, allHostiles, rallyPoint, mapMid,
+            gameplay, fightLine, allHostiles, rallyPoint, mapMid,
         )
 
         val combatAllies = gameplay.myCreeps.filter {
-            it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
+            it.role == Role.COMBAT_HYBRID ||
+                it.role == Role.COMBAT_RANGER ||
+                it.role == Role.COMBAT_FLAG_BLOCKER
         }
         val healRatio = CombatTuning.ALLY_HEAL_START_RATIO
         val needsHeal = combatAllies.any {
@@ -42,7 +49,7 @@ object BehaviorSelector {
         }
         var healerAssigned = false
 
-        for (creep in combatCreeps) {
+        for (creep in behaviorLine) {
             val localThreat = allHostiles.any {
                 creep.getRangeTo(it) <= CombatTuning.IMMEDIATE_THREAT_RANGE
             }

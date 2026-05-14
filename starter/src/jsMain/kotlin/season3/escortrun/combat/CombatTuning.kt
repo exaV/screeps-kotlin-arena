@@ -10,6 +10,9 @@ object CombatTuning {
     /** Ennyire közeli ellenséget mindig a stratégiai cél elé vesszük (lövés / közeledés). */
     const val IMMEDIATE_THREAT_RANGE: Int = 8
 
+    /** FlagBlockerAssigner: „már a VIP-re fókuszálunk” – harcos–VIP távolság ehhez képest is elég. */
+    const val FLAG_BLOCKER_VIP_FOCUS_MAX_RANGE: Int = 10
+
     /**
      * Harcos: ha ennyire közel vagyunk a saját EscortCreep-hez, a VIP-t ténylegesen sebző ellenséget
      * választjuk (legalacsonyabb HP – stabil focus), még a saját 8-as „közeli fenyegetés” előtt is.

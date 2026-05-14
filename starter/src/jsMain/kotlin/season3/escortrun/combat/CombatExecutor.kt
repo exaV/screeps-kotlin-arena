@@ -16,6 +16,10 @@ import season3.escortrun.role
 object CombatExecutor {
 
     fun execute(creep: Creep, gameplay: Gameplay) {
+        if (creep.role == Role.COMBAT_FLAG_BLOCKER) {
+            executeEnemyFlagBlock(creep, gameplay)
+            return
+        }
         when (creep.behavior) {
             Behavior.WAIT -> holdOrAdvance(creep, gameplay, advanceToRally = false)
             Behavior.CAPTURE -> holdOrAdvance(creep, gameplay, advanceToRally = true)
@@ -23,6 +27,24 @@ object CombatExecutor {
             Behavior.HEAL -> healCombatLine(creep, gameplay)
             else -> {}
         }
+    }
+
+    /** Ellenséges capture cella: zászló vagy legközelebbi fő ellenséges spawn. */
+    private fun enemyBlockGoal(gameplay: Gameplay): GameObject? {
+        gameplay.getEnemyTeamFlag()?.let { return it }
+        return gameplay.getEnemySpawns().minByOrNull { gameplay.mySpawn.getRangeTo(it) }
+    }
+
+    private fun executeEnemyFlagBlock(creep: Creep, gameplay: Gameplay) {
+        val goal = enemyBlockGoal(gameplay) ?: return
+        if (creep.x == goal.x && creep.y == goal.y) {
+            val vip = gameplay.getEnemyEscortVip()
+            if (vip != null && creep.canRangedAttack() && creep.getRangeTo(vip) <= CombatTuning.RANGED_ATTACK_RANGE) {
+                creep.rangedAttack(vip)
+            }
+            return
+        }
+        creep.moveTo(goal)
     }
 
     private fun holdOrAdvance(creep: Creep, gameplay: Gameplay, advanceToRally: Boolean) {
@@ -90,7 +112,9 @@ object CombatExecutor {
 
         val woundedCombat = gameplay.myCreeps
             .filter {
-                (it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER) &&
+                (it.role == Role.COMBAT_HYBRID ||
+                    it.role == Role.COMBAT_RANGER ||
+                    it.role == Role.COMBAT_FLAG_BLOCKER) &&
                     it.hits < it.hitsMax * CombatTuning.ALLY_HEAL_HP_RATIO
             }
             .minByOrNull { it.hits }
@@ -113,7 +137,9 @@ object CombatExecutor {
         val ratio = CombatTuning.ALLY_HEAL_START_RATIO
         val allies = gameplay.myCreeps.filter {
             it.id != creep.id &&
-                (it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER) &&
+                (it.role == Role.COMBAT_HYBRID ||
+                    it.role == Role.COMBAT_RANGER ||
+                    it.role == Role.COMBAT_FLAG_BLOCKER) &&
                 it.hits < it.hitsMax * ratio
         }
         val adjacent = allies.filter { creep.getRangeTo(it) <= 1 }.minByOrNull { it.hits }

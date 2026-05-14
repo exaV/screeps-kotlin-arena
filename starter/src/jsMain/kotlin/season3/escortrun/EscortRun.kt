@@ -2,8 +2,10 @@ package season3.escortrun
 
 import screeps.api.*
 import screeps.api.season3.EscortCreep
+import screeps.api.Flag
 import screeps.api.structures.*
 import season3.escortrun.combat.CombatTuning
+import season3.escortrun.combat.FlagBlockerAssigner
 import season3.escortrun.GameplayUtil.getMyCreeps
 import season3.escortrun.GameplayUtil.getMyEscortCreep
 import season3.escortrun.GameplayUtil.getMySource
@@ -64,6 +66,21 @@ class Gameplay {
     fun getEnemySpawns(): List<StructureSpawn> =
         getObjectsByPrototype(StructureSpawn::class.js).toList()
             .filter { it.exists && it.my == false }
+
+    /** Saját capture zászló (ahová az ellenséges VIP deny szerint igyekszik). */
+    fun getMyCaptureFlag(): Flag? =
+        getObjectsByPrototype(Flag::class.js).toList()
+            .firstOrNull { it.exists && it.my == true }
+
+    /** Ellenséges csapat zászlója (blokkoló cél). */
+    fun getEnemyTeamFlag(): Flag? =
+        getObjectsByPrototype(Flag::class.js).toList()
+            .firstOrNull { it.exists && it.my == false }
+
+    /** Ellenséges EscortCreep (hitsMax 5000). */
+    fun getEnemyEscortVip(): Creep? =
+        getObjectsByPrototype(Creep::class.js).toList()
+            .firstOrNull { it.exists && it.my == false && it.hitsMax == 5000 }
 
     // ── Target prioritás (EscortRunStrategy + eredeti komment a forrásban) ───
     // 1. Ha az ellenfél VIP a saját zászlónk 25 range-en belül → ő a cél (capture deny)
@@ -212,7 +229,11 @@ class Gameplay {
     }
 
     private fun combatFighters(): List<Creep> =
-        myCreeps.filter { it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER }
+        myCreeps.filter {
+            it.role == Role.COMBAT_HYBRID ||
+                it.role == Role.COMBAT_RANGER ||
+                it.role == Role.COMBAT_FLAG_BLOCKER
+        }
 
     private fun combatPackMaxSpread(): Int {
         val f = combatFighters()
@@ -427,7 +448,9 @@ private fun getNextCreepToSpawn(gameplay: Gameplay): CreepType? {
     }
 
     val aliveCombat = gameplay.myCreeps.count {
-        it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER
+        it.role == Role.COMBAT_HYBRID ||
+            it.role == Role.COMBAT_RANGER ||
+            it.role == Role.COMBAT_FLAG_BLOCKER
     }
     if (aliveCombat < EscortRunStrategy.MAX_COMBAT_ALIVE) {
         return pickCombatSpawnType(gameplay)
@@ -492,6 +515,7 @@ fun loop() {
 
     // Role assignálás
     assignStaticRoles(gameplay)
+    FlagBlockerAssigner.update(gameplay)
 
     // Formation frissítések
     CombatManager.update(gameplay)

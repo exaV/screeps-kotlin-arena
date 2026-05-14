@@ -67,7 +67,7 @@ class SpawnStrikeGameplay : Gameplay {
 //        DefenderStrategySelector(this)
 //            .setNext(HealCreepStrategySelector(this))
 //            .setNext(CaptureTheFlagEscortStrategySelector(this))
-            .setNext(LateGameStrategySelector(this))
+//            .setNext(LateGameStrategySelector(this))
     }
 
     fun refreshCreeps() {

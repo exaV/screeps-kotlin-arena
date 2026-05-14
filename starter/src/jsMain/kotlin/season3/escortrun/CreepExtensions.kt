@@ -20,6 +20,8 @@ enum class Role {
     // Harci csapat (fix középen)
     COMBAT_HYBRID,   // MOVE, MOVE, RANGED_ATTACK, HEAL
     COMBAT_RANGER,   // MOVE, MOVE, MOVE, RANGED_ATTACK x3
+    /** Tickenként: ellenséges capture zászló (vagy fő spawn) cellájára áll – a legközelebbi ranged harcos kapja. */
+    COMBAT_FLAG_BLOCKER,
 
     // Kígyó
     SNAKE,           // MOVE_ONLY – kígyó tagja

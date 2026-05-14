@@ -30,8 +30,10 @@ object CombatManager {
 
         // Új harci creepeket hozzáadjuk
         val newCombat = gameplay.myCreeps.filter {
-            (it.role == Role.COMBAT_HYBRID || it.role == Role.COMBAT_RANGER) &&
-                    it.id !in alive
+            (it.role == Role.COMBAT_HYBRID ||
+                it.role == Role.COMBAT_RANGER ||
+                it.role == Role.COMBAT_FLAG_BLOCKER) &&
+                it.id !in alive
         }
         combatCreeps.addAll(newCombat)
     }

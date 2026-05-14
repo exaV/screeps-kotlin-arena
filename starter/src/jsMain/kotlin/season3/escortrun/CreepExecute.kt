@@ -9,8 +9,9 @@ fun Creep.execute(gameplay: Gameplay) {
     when (role) {
         Role.WORKER             -> executeWorker(gameplay)
         Role.HARVESTER          -> executeHarvester(gameplay)
-        Role.COMBAT_HYBRID      -> executeCombat(gameplay)
-        Role.COMBAT_RANGER      -> executeCombat(gameplay)
+        Role.COMBAT_HYBRID       -> executeCombat(gameplay)
+        Role.COMBAT_RANGER       -> executeCombat(gameplay)
+        Role.COMBAT_FLAG_BLOCKER -> executeCombat(gameplay)
         Role.EXPANSION_BUILDER  -> ExpansionExecution.execute(this, gameplay)
         Role.SNAKE              -> executeSnake(gameplay)
         else                    -> {}
