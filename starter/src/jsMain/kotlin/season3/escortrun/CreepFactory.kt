@@ -2,7 +2,6 @@ package season3.escortrun
 
 import screeps.api.*
 import screeps.api.structures.*
-import season1.spawnstrike.spawnCreep
 
 enum class CreepType {
     WORKER,
@@ -100,3 +99,6 @@ sealed class MoveOnly : CreepFactory {
             friendlySpawn.spawnCreep(listOf(MOVE))
     }
 }
+
+fun StructureSpawn.spawnCreep(bodyParts: List<BodyPartType>): Creep? =
+    spawnCreep(bodyParts.toTypedArray()).`object`
