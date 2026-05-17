@@ -189,7 +189,7 @@ object Raider {
             closerToSecondary
         }
         val target = if (goPrimary) primaryHold else secondaryHold
-        if (creep.getRangeTo(target) <= 1) {
+        if (creep.getRangeTo(target) <= 5) {
             waitingTargetPrimary[creep.id] = !goPrimary
         }
         val nextTarget = if (waitingTargetPrimary[creep.id] == true) primaryHold else secondaryHold

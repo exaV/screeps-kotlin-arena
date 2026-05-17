@@ -27,7 +27,7 @@ object Assault {
         if (!isSpawnDefender(creep, gameplay)) {
             leaderPreviousPosition = pos(creep.x, creep.y)
         }
-        if (gameplay.isCheckpointDefendMode()) {
+        if (!wallBreached && gameplay.isCheckpointDefendMode()) {
             checkpointDefenseBehavior(creep, gameplay)
             return
         }
@@ -86,7 +86,7 @@ object Assault {
     }
 
     private fun checkpointDefenseBehavior(creep: Creep, gameplay: Gameplay) {
-        val threats = gameplay.getCheckpointDefenseThreats()
+        val threats = gameplay.getCheckpointDefenseThreats().filter { isRelevantEnemy(it) }
         if (threats.isEmpty()) return
 
         shootBestTarget(creep, threats)
@@ -103,7 +103,8 @@ object Assault {
 
     /** Spawn defense: spawn 15 range ellenség, lő vagy közelít. */
     private fun spawnDefenseBehavior(creep: Creep, gameplay: Gameplay) {
-        val nearSpawn = gameplay.getHostileCreeps().filter { gameplay.mySpawn.getRangeTo(it) <= SPAWN_DEFENSE_RANGE }
+        val nearSpawn = gameplay.getHostileCreeps()
+            .filter { isRelevantEnemy(it) && gameplay.mySpawn.getRangeTo(it) <= SPAWN_DEFENSE_RANGE }
         val target = nearSpawn.minWithOrNull(
             compareBy<Creep>({ gameplay.mySpawn.getRangeTo(it) }, { creep.getRangeTo(it) }, { it.hits }, { it.id }),
         )
@@ -124,7 +125,7 @@ object Assault {
 
     private fun wallBreachBehavior(creep: Creep, gameplay: Gameplay, useRearLane: Boolean) {
         val isLeader = !useRearLane
-        val hostiles = gameplay.getHostileCreeps()
+        val hostiles = gameplay.getHostileCreeps().filter { isRelevantEnemy(it) }
         val isTop      = gameplay.isInTop()
         val wallCoords = if (isTop) TOP_WALL_COORDS else BOTTOM_WALL_COORDS
         val allWalls   = getObjectsByPrototype(StructureWall::class.js).toList().filter { it.exists }
@@ -171,7 +172,7 @@ object Assault {
         val ally = assaultAlly(creep, gameplay)
         val isLeader = !isSpawnDefender(creep, gameplay)
         val spawn    = gameplay.getEnemySpawn() ?: return
-        val hostiles = gameplay.getHostileCreeps()
+        val hostiles = gameplay.getHostileCreeps().filter { isRelevantEnemy(it) }
 
         val shotHostile = shootNearbyThreat(creep, hostiles)
         if (!shotHostile && creep.canRangedAttack() && creep.getRangeTo(spawn) <= RANGED_ATTACK_RANGE) {
@@ -201,6 +202,9 @@ object Assault {
         if (nearby.isEmpty()) return false
         return shootBestTarget(creep, nearby)
     }
+
+    private fun isRelevantEnemy(enemy: Creep): Boolean =
+        enemy.body.any { it.type == ATTACK || it.type == RANGED_ATTACK || it.type == HEAL }
 
     private fun kiteAwayFromHostiles(creep: Creep, hostiles: List<Creep>) {
         val nearby = hostiles.filter { creep.getRangeTo(it) <= RANGED_ATTACK_RANGE + 1 }
