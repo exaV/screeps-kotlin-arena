@@ -8,6 +8,7 @@ object Assault {
 
     private const val SELF_HEAL_THRESHOLD = 0.95
     private const val SPAWN_DEFENSE_RANGE = 15
+    private const val SPAWN_DEFENDER_MAX_RANGE = 5
     private const val MAX_COHESION_DIST = 4
     private const val ASSAULT_ENGAGE_RANGE = 5
 
@@ -27,10 +28,6 @@ object Assault {
         if (!isSpawnDefender(creep, gameplay)) {
             leaderPreviousPosition = pos(creep.x, creep.y)
         }
-        if (!wallBreached && gameplay.isCheckpointDefendMode()) {
-            checkpointDefenseBehavior(creep, gameplay)
-            return
-        }
         if (isSpawnDefender(creep, gameplay)) {
             executeSpawnDefender(creep, gameplay)
         } else {
@@ -46,7 +43,7 @@ object Assault {
         if (gameplay.isEnemyBreakingOurWall()) {
             spawnDefenseTriggered = true
         }
-        if (spawnDefenseTriggered) {
+        if (spawnDefenseTriggered || gameplay.isCheckpointDefendMode()) {
             spawnDefenseBehavior(creep, gameplay)
             return
         }
@@ -103,6 +100,7 @@ object Assault {
 
     /** Spawn defense: spawn 15 range ellenség, lő vagy közelít. */
     private fun spawnDefenseBehavior(creep: Creep, gameplay: Gameplay) {
+        val spawnDist = creep.getRangeTo(gameplay.mySpawn)
         val nearSpawn = gameplay.getHostileCreeps()
             .filter { isRelevantEnemy(it) && gameplay.mySpawn.getRangeTo(it) <= SPAWN_DEFENSE_RANGE }
         val target = nearSpawn.minWithOrNull(
@@ -112,13 +110,20 @@ object Assault {
         if (target != null) {
             if (creep.canRangedAttack() && creep.getRangeTo(target) <= RANGED_ATTACK_RANGE) {
                 creep.rangedAttack(target)
-            } else {
+            }
+            if (spawnDist > SPAWN_DEFENDER_MAX_RANGE) {
+                creep.moveTo(gameplay.mySpawn)
+            } else if (spawnDist < SPAWN_DEFENDER_MAX_RANGE && creep.getRangeTo(target) > RANGED_ATTACK_RANGE) {
                 CombatActions.moveToward(creep, target, stopRange = RANGED_ATTACK_RANGE)
             }
             return
         }
 
-        if (creep.getRangeTo(gameplay.mySpawn) > 2) {
+        if (spawnDist > SPAWN_DEFENDER_MAX_RANGE) {
+            creep.moveTo(gameplay.mySpawn)
+            return
+        }
+        if (spawnDist > 2) {
             creep.moveTo(gameplay.mySpawn)
         }
     }
