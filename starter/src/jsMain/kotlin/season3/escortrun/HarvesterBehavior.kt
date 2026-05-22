@@ -27,15 +27,7 @@ object HarvesterBehavior {
 
     // ── Relay pozíciók ────────────────────────────────────────────────────────
 
-    // H1 állomások: worker közelétől H2 irányába
-    private val H1_STOPS_TOP = listOf(pos(4, 4), pos(5, 5), pos(6, 6))
-    private val H1_STOPS_BOT = listOf(pos(4, 95), pos(5, 94), pos(6, 93))
 
-    // H2 állomások: H1-től spawn irányába
-    private val H2_STOP_A_TOP = pos(7, 7)
-    private val H2_STOP_B_TOP = pos(8, 8)
-    private val H2_STOP_A_BOT = pos(7, 92)
-    private val H2_STOP_B_BOT = pos(8, 91)
 
     fun execute(creep: Creep, gameplay: Gameplay, boostEnabled: Boolean) {
         val h1   = EnergyChain.getPrimaryHarvester(gameplay)
@@ -101,35 +93,21 @@ object HarvesterBehavior {
     }
 
     /**
-     * H1 normál relay ingázás: stop0 → stop1 → stop2 → átad H2-nek → vissza.
-     * W2 spawning közben is hívható, ilyenkor W1-gyel dolgozik a lánc.
+     * H1 normál relay ingázás: W1-hez megy (átvesz), majd H2-nek / spawnnak átad.
+     * W2 spawning közben is hívható.
      */
     private fun executeNormalRelayH1(creep: Creep, gameplay: Gameplay, h2: Creep?) {
-        val stops = if (gameplay.isTopSide) H1_STOPS_TOP else H1_STOPS_BOT
+        val pickupPos = if (gameplay.isTopSide) pos(4, 4) else pos(4, 95)
 
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-            // Üres → menj stop0-ra (W1 közelébe), ott várj átvételre
-            val stop0 = stops[0]
-            if (creep.x != stop0.x || creep.y != stop0.y) {
-                creep.moveTo(stop0)
-            }
-            // Helyes pozícióban vagyunk – worker átad nekünk ha range ≤ 1
-            // (a worker oldalán van a transfer, itt csak várunk)
+            // Üres → menj a fix pickup pozícióba, ott várj átvételre (W2 oldalán van a transfer)
+            if (creep.x != pickupPos.x || creep.y != pickupPos.y) creep.moveTo(pickupPos)
         } else {
-            // Teli → haladj a stop láncon H2 felé
+            // Teli → adj át H2-nek, vagy ha nincs H2, vidd a spawnhoz
             if (h2 != null) {
-                val currentStop = stops.indexOfFirst { creep.x == it.x && creep.y == it.y }
-                if (currentStop == -1) {
-                    creep.moveTo(stops[0])
-                } else if (currentStop < stops.size - 1) {
-                    creep.moveTo(stops[currentStop + 1])
-                } else {
-                    // Utolsó állomáson → adj át H2-nek
-                    if (creep.getRangeTo(h2) <= 1) creep.transfer(h2, RESOURCE_ENERGY)
-                    else creep.moveTo(h2)
-                }
+                if (creep.getRangeTo(h2) <= 1) creep.transfer(h2, RESOURCE_ENERGY)
+                else creep.moveTo(h2)
             } else {
-                // Nincs H2 → vidd közvetlenül a spawnhoz
                 val spawn = gameplay.mySpawn
                 if (creep.getRangeTo(spawn) <= 1) creep.transfer(spawn, RESOURCE_ENERGY)
                 else creep.moveTo(spawn)
@@ -167,27 +145,16 @@ object HarvesterBehavior {
         }
 
         // ── Normál relay ingázás ──────────────────────────────────────────────
-        // H2 két fix állomás között ugrál: stopA ↔ stopB
-        // stopA: H1 közelében van → átveszi az energiát
-        // stopB: spawn közelében van → átadja a spawnnak
-        val stopA = if (gameplay.isTopSide) H2_STOP_A_TOP else H2_STOP_A_BOT
-        val stopB = if (gameplay.isTopSide) H2_STOP_B_TOP else H2_STOP_B_BOT
-
+        // H2 szabadon mozog: üres → H1-hez, teli → Spawn-hoz
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-            // Üres → menj stopA-ra (H1 közelére), ott várj átvételre
-            if (creep.x == stopA.x && creep.y == stopA.y) {
-                // H1 átad ha range ≤ 1 – mi csak várunk
+            if (creep.getRangeTo(h1) <= 1) {
+                // H1 átad ha van energiája – mi csak várunk
             } else {
-                creep.moveTo(stopA)
+                creep.moveTo(h1)
             }
         } else {
-            // Teli → menj stopB-re és add át a spawnnak
-            if (creep.x == stopB.x && creep.y == stopB.y) {
-                if (creep.getRangeTo(spawn) <= 1) creep.transfer(spawn, RESOURCE_ENERGY)
-                else creep.moveTo(spawn)
-            } else {
-                creep.moveTo(stopB)
-            }
+            if (creep.getRangeTo(spawn) <= 1) creep.transfer(spawn, RESOURCE_ENERGY)
+            else creep.moveTo(spawn)
         }
     }
 }
