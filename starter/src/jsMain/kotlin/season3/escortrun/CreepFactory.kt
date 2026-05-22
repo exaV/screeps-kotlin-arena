@@ -1,104 +1,62 @@
 package season3.escortrun
 
 import screeps.api.*
-import screeps.api.structures.*
+import screeps.api.structures.StructureSpawn
+
+// ── Creep típusok ─────────────────────────────────────────────────────────────
 
 enum class CreepType {
-    WORKER,
-    HARVESTER,
-    CARRIER,
-    ATTACKER,
-    HYBRID,      // MOVE, MOVE, RANGED_ATTACK, HEAL
-    RANGER,      // MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK
-    /** Korai opener: gyors, heal nélkül. */
-    SKIRMISHER,  // MOVE, MOVE, RANGED_ATTACK
-    /** Korai opener: távoli konténer + második spawn. */
-    EXPANSION_RUNNER, // MOVE, MOVE, WORK, WORK, CARRY
-    MOVE_ONLY,   // MOVE – kígyó tagja
-    DEFENDER,
+    WORKER,        // WORK×3 CARRY
+    HEAVY_WORKER,  // WORK×5 CARRY
+    HARVESTER,     // MOVE CARRY
+    RANGER,        // TOUGH MOVE×5 RANGED_ATTACK×4
+    HYBRID,        // MOVE×2 RANGED_ATTACK HEAL
+    DIGGER,        // MOVE ATTACK×10
 }
 
+// ── Factory ───────────────────────────────────────────────────────────────────
+
 interface CreepFactory {
-    fun createCreep(friendlySpawn: StructureSpawn): Creep?
+    fun createCreep(spawn: StructureSpawn): Creep?
 
     companion object {
         fun of(type: CreepType): CreepFactory = when (type) {
-            CreepType.WORKER    -> Worker
-            CreepType.HARVESTER -> Harvester
-            CreepType.CARRIER   -> Carrier
-            CreepType.ATTACKER  -> Attacker
-            CreepType.HYBRID            -> Hybrid
-            CreepType.RANGER           -> Ranger
-            CreepType.SKIRMISHER       -> Skirmisher
-            CreepType.EXPANSION_RUNNER -> ExpansionRunner
-            CreepType.MOVE_ONLY -> MoveOnly
-            CreepType.DEFENDER  -> TODO()
+            CreepType.WORKER       -> WorkerFactory
+            CreepType.HEAVY_WORKER -> HeavyWorkerFactory
+            CreepType.HARVESTER    -> HarvesterFactory
+            CreepType.RANGER       -> RangerFactory
+            CreepType.HYBRID       -> HybridFactory
+            CreepType.DIGGER       -> DiggerFactory
         }
     }
 }
 
-sealed class Worker : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(WORK, WORK, WORK, CARRY))
-    }
+private object WorkerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(WORK, WORK, WORK, CARRY)).`object`
 }
 
-sealed class Harvester : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, CARRY))
-    }
+private object HeavyWorkerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(WORK, WORK, WORK, WORK, WORK, CARRY)).`object`
 }
 
-sealed class Carrier : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, CARRY, CARRY))
-    }
+private object HarvesterFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(MOVE, CARRY)).`object`
 }
 
-sealed class Attacker : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK))
-    }
+private object RangerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK)).`object`
 }
 
-sealed class Hybrid : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, RANGED_ATTACK, HEAL))
-    }
+private object HybridFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(MOVE, MOVE, MOVE, HEAL, HEAL)).`object`
 }
 
-sealed class Ranger : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK))
-    }
+private object DiggerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK)).`object`
 }
-
-sealed class Skirmisher : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, RANGED_ATTACK))
-    }
-}
-
-sealed class ExpansionRunner : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE, MOVE, WORK, WORK, CARRY))
-    }
-}
-
-sealed class MoveOnly : CreepFactory {
-    companion object : CreepFactory {
-        override fun createCreep(friendlySpawn: StructureSpawn): Creep? =
-            friendlySpawn.spawnCreep(listOf(MOVE))
-    }
-}
-
-fun StructureSpawn.spawnCreep(bodyParts: List<BodyPartType>): Creep? =
-    spawnCreep(bodyParts.toTypedArray()).`object`
