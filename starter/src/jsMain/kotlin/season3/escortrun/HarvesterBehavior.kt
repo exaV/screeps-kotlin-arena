@@ -61,9 +61,9 @@ object HarvesterBehavior {
                 creep.moveTo(positions.waitingForWorker1)
                 return
             }
-            // W2 spawol → várakozás
+            // W2 még spawol → ne álljunk meg, relay-ezzünk W1-gyel
             if (w2?.spawning == true) {
-                creep.moveTo(positions.harvester1WaitingForWorker2)
+                executeNormalRelayH1(creep, gameplay, h2)
                 return
             }
             // W1 nincs helyén → húzd oda
@@ -97,38 +97,36 @@ object HarvesterBehavior {
             }
         }
 
-        // ── Normál relay ingázás ──────────────────────────────────────────────
-        // H1 fix állomásokon halad: worker → stop0 → stop1 → stop2 → átad H2-nek → vissza
+        executeNormalRelayH1(creep, gameplay, h2)
+    }
+
+    /**
+     * H1 normál relay ingázás: stop0 → stop1 → stop2 → átad H2-nek → vissza.
+     * W2 spawning közben is hívható, ilyenkor W1-gyel dolgozik a lánc.
+     */
+    private fun executeNormalRelayH1(creep: Creep, gameplay: Gameplay, h2: Creep?) {
         val stops = if (gameplay.isTopSide) H1_STOPS_TOP else H1_STOPS_BOT
-        val workerTarget = if (boostedEconomyBuilt) w2 ?: w1 else w1
 
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-            // Üres → menj a workerhez (stop0 pozíción várja az átadást)
+            // Üres → menj stop0-ra (W1 közelébe), ott várj átvételre
             val stop0 = stops[0]
-            if (creep.x == stop0.x && creep.y == stop0.y) {
-                // Helyes pozícióban vagyunk – worker átad nekünk ha range ≤ 1
-                // (a worker oldalán van a transfer, itt csak várunk)
-            } else {
+            if (creep.x != stop0.x || creep.y != stop0.y) {
                 creep.moveTo(stop0)
             }
+            // Helyes pozícióban vagyunk – worker átad nekünk ha range ≤ 1
+            // (a worker oldalán van a transfer, itt csak várunk)
         } else {
-            // Teli → haladj a stop láncon H2 felé, minden lépésnél ha range ≤ 1 → transfer
+            // Teli → haladj a stop láncon H2 felé
             if (h2 != null) {
-                // Megkeressük hol vagyunk a láncban
                 val currentStop = stops.indexOfFirst { creep.x == it.x && creep.y == it.y }
                 if (currentStop == -1) {
-                    // Nem vagyunk még egyik állomáson sem → menjünk stop0-ra
                     creep.moveTo(stops[0])
                 } else if (currentStop < stops.size - 1) {
-                    // Van következő állomás → lépj előre
                     creep.moveTo(stops[currentStop + 1])
                 } else {
-                    // Utolsó állomáson (stop2) vagyunk → adj át H2-nek ha közel van
-                    if (creep.getRangeTo(h2) <= 1) {
-                        creep.transfer(h2, RESOURCE_ENERGY)
-                    } else {
-                        creep.moveTo(h2)
-                    }
+                    // Utolsó állomáson → adj át H2-nek
+                    if (creep.getRangeTo(h2) <= 1) creep.transfer(h2, RESOURCE_ENERGY)
+                    else creep.moveTo(h2)
                 }
             } else {
                 // Nincs H2 → vidd közvetlenül a spawnhoz
