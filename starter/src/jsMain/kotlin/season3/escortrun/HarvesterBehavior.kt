@@ -30,6 +30,9 @@ object HarvesterBehavior {
     var chainPositioningDone: Boolean = false
         internal set
 
+    // H2 már elvégezte a saját cseréjét → nem kell visszamennie step2-re
+    private var h2SwapDone: Boolean = false
+
     fun execute(creep: Creep, gameplay: Gameplay, boostEnabled: Boolean) {
         val h1 = EnergyChain.getPrimaryHarvester(gameplay)
         val isH1 = creep.id == h1?.id
@@ -136,17 +139,28 @@ object HarvesterBehavior {
      * Ha nincs CARRY még → W1 közeléből (4,4 / 4,95) vesz.
      */
     private fun executeNormalRelayH1(creep: Creep, gameplay: Gameplay, h2: Creep?, carry: Creep?) {
+        if (chainPositioningDone) {
+            // C1 a helyén → H1 fix relay: (5,5)/(5,94) vesz, (6,6)/(6,93) ad H2-nek
+            val pickupPos   = if (gameplay.isTopSide) pos(5, 5) else pos(5, 94)
+            val transferPos = if (gameplay.isTopSide) pos(6, 6) else pos(6, 93)
+            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+                if (creep.x != pickupPos.x || creep.y != pickupPos.y) creep.moveTo(pickupPos)
+            } else {
+                if (creep.x != transferPos.x || creep.y != transferPos.y) creep.moveTo(transferPos)
+                else if (h2 != null && creep.getRangeTo(h2) <= 1) creep.transfer(h2, RESOURCE_ENERGY)
+            }
+            return
+        }
+
+        // C1 még nem a helyén → eredeti relay
         val pickupPos = if (carry != null) {
             if (gameplay.isTopSide) pos(5, 5) else pos(5, 94)
         } else {
             if (gameplay.isTopSide) pos(4, 4) else pos(4, 95)
         }
-
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-            // Üres → menj pickup pozícióba és várj (CARRY / W1 adja át)
             if (creep.x != pickupPos.x || creep.y != pickupPos.y) creep.moveTo(pickupPos)
         } else {
-            // Teli → adj át H2-nek vagy spawnhoz
             if (h2 != null) {
                 if (creep.getRangeTo(h2) <= 1) creep.transfer(h2, RESOURCE_ENERGY)
                 else creep.moveTo(h2)
@@ -195,8 +209,8 @@ object HarvesterBehavior {
         // Ha C1 blokkolja step2-t → H2 pullolja és megy oda → helyet cserélnek
         // Trigger: W2 már a helyén van (boostedEconomyBuilt még ugyanabban a tickben false lehet)
         val w2InPlace = EnergyChain.isWorker2InPlace(gameplay)
-        println("[H2] pozicionálás feltétel: (boostedEconomyBuilt=$boostedEconomyBuilt || w2InPlace=$w2InPlace) && !chainDone=$chainPositioningDone")
-        if ((boostedEconomyBuilt || w2InPlace) && !chainPositioningDone) {
+        println("[H2] pozicionálás feltétel: (boostedEconomyBuilt=$boostedEconomyBuilt || w2InPlace=$w2InPlace) && !chainDone=$chainPositioningDone h2SwapDone=$h2SwapDone")
+        if ((boostedEconomyBuilt || w2InPlace) && !chainPositioningDone && !h2SwapDone) {
             val step1 = if (gameplay.isTopSide) pos(5, 5)  else pos(5, 94)
             val step2 = if (gameplay.isTopSide) pos(6, 6)  else pos(6, 93)
             val carry = EnergyChain.getCarry(gameplay)
@@ -205,6 +219,10 @@ object HarvesterBehavior {
                 creep.x == step2.x && creep.y == step2.y -> {
                     val carryGone = carry == null || !(carry.x == step2.x && carry.y == step2.y)
                     println("[H2] step2-n vagyok, carryGone=$carryGone")
+                    if (carryGone) {
+                        h2SwapDone = true
+                        executeNormalRelayH2(creep, gameplay, h1, spawn)
+                    }
                 }
                 creep.x == step1.x && creep.y == step1.y -> {
                     println("[H2] step1-en vagyok, pullolom carry-t és megyek step2 felé")
@@ -220,12 +238,30 @@ object HarvesterBehavior {
         }
 
         // ── Normál relay ingázás ──────────────────────────────────────────────
-        // H2 szabadon mozog: üres → H1-hez, teli → Spawn-hoz
+        executeNormalRelayH2(creep, gameplay, h1, spawn)
+    }
+
+    private fun executeNormalRelayH2(creep: Creep, gameplay: Gameplay, h1: Creep, spawn: screeps.api.structures.StructureSpawn) {
+        if (chainPositioningDone) {
+            // C1 a helyén → H2 fix relay: (7,7)/(7,92) vesz H1-től, (8,8)/(8,91) ad spawnnak
+            val pickupPos   = if (gameplay.isTopSide) pos(7, 7) else pos(7, 92)
+            val transferPos = if (gameplay.isTopSide) pos(8, 8) else pos(8, 91)
+            if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+                if (creep.x != pickupPos.x || creep.y != pickupPos.y) creep.moveTo(pickupPos)
+            } else {
+                if (creep.x != transferPos.x || creep.y != transferPos.y) creep.moveTo(transferPos)
+                else if (creep.getRangeTo(spawn) <= 1) creep.transfer(spawn, RESOURCE_ENERGY)
+            }
+            return
+        }
+
+        // C1 még nem a helyén → eredeti relay: H1-hez megy, teli → spawn
+        val h1RelayPos = if (gameplay.isTopSide) pos(5, 5) else pos(5, 94)
         if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
             if (creep.getRangeTo(h1) <= 1) {
-                // H1 átad ha van energiája – mi csak várunk
+                // H1 átad – várunk
             } else {
-                creep.moveTo(h1)
+                creep.moveTo(h1RelayPos)
             }
         } else {
             if (creep.getRangeTo(spawn) <= 1) creep.transfer(spawn, RESOURCE_ENERGY)
