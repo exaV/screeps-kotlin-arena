@@ -7,6 +7,7 @@ import season3.escortrun.canHeal
 import season3.escortrun.canRangedAttack
 import season3.escortrun.pos
 import season3.escortrun.role
+import kotlin.math.sqrt
 
 /**
  * Harci creepek (COMBAT_RANGER, COMBAT_HYBRID) viselkedése.
@@ -23,7 +24,7 @@ import season3.escortrun.role
  */
 object CombatBehavior {
 
-    private const val KITE_DANGER_RANGE = 2
+    private const val KITE_DANGER_RANGE = 5
     private const val OPTIMAL_RANGE     = 3
     private const val ENGAGE_RANGE      = 10
     private const val RALLY_REACHED_RANGE = 4
@@ -39,9 +40,9 @@ object CombatBehavior {
             val hybridTarget = getFocusTarget(creep, gameplay)
             if (hybridTarget != null) {
                 val dist = creep.getRangeTo(hybridTarget)
-                if (creep.canRangedAttack()) creep.rangedAttack(hybridTarget)
+                shootBest(creep, gameplay)
                 when {
-                    dist < OPTIMAL_RANGE -> kiteFromHostiles(creep, gameplay.getHostileCreeps())
+                    dist < OPTIMAL_RANGE -> kiteFromHostiles(creep, gameplay.getHostileCreeps(), gameplay)
                     dist == OPTIMAL_RANGE -> { /* ideális táv, csak lőj */ }
                     else -> creep.moveTo(hybridTarget)
                 }
@@ -61,17 +62,15 @@ object CombatBehavior {
 
         if (target != null) {
             val dist = creep.getRangeTo(target)
-            if (creep.canRangedAttack()) creep.rangedAttack(target)
+            shootBest(creep, gameplay)
 
             when {
-                dist < OPTIMAL_RANGE -> {
-                    // Kite: távolodj az összes közeli ellenségtől
-                    kiteFromHostiles(creep, gameplay.getHostileCreeps())
-                }
-                dist == OPTIMAL_RANGE -> {
-                    // Optimális – csak lőj, ne mozogj
+                dist <= KITE_DANGER_RANGE -> {
+                    // Kite: fusson a spawn felé
+                    kiteFromHostiles(creep, gameplay.getHostileCreeps(), gameplay)
                 }
                 else -> {
+                    // Távolabb van → közeledj és lőj
                     creep.moveTo(target)
                 }
             }
@@ -99,23 +98,23 @@ object CombatBehavior {
     // ── Kite flee pozíció ─────────────────────────────────────────────────────
 
     /**
-     * Flee irány: az összes közeli ellenség átlagpozíciójától távolodik.
-     * Több ellenség esetén is helyes irányt ad.
-     * Ha dx==dy==0 (pontosan fedik egymást), jobbra-fel mozdul.
+     * Kite: az ellenség mögé mutat 15 mezőre, a moveTo pathfinder megkerüli a falakat.
+     * KITE_DANGER_RANGE-en belül mindig fut, azon kívül áll és lő.
      */
-    private fun kiteFromHostiles(creep: Creep, hostiles: List<Creep>) {
-        val nearby = hostiles.filter { creep.getRangeTo(it) <= KITE_DANGER_RANGE + 1 }
+    private fun kiteFromHostiles(creep: Creep, hostiles: List<Creep>, gameplay: Gameplay) {
+        val nearby = hostiles.filter { creep.getRangeTo(it) <= KITE_DANGER_RANGE }
         if (nearby.isEmpty()) return
+        // Átlagos ellenség pozíció
         val avgX = nearby.sumOf { it.x } / nearby.size
         val avgY = nearby.sumOf { it.y } / nearby.size
+        // Flee irány: el az ellenségtől, 15 mezőre
         val dx = creep.x - avgX
         val dy = creep.y - avgY
-        val moveX = if (dx == 0 && dy == 0) 1 else dx.coerceIn(-1, 1)
-        val moveY = if (dx == 0 && dy == 0) -1 else dy.coerceIn(-1, 1)
-        creep.moveTo(pos(
-            (creep.x + moveX).coerceIn(1, 98),
-            (creep.y + moveY).coerceIn(1, 98),
-        ))
+        val len = sqrt((dx * dx + dy * dy).toDouble()).coerceAtLeast(1.0)
+        val fleeX = (creep.x + (dx / len * 15).toInt()).coerceIn(2, 97)
+        val fleeY = (creep.y + (dy / len * 15).toInt()).coerceIn(2, 97)
+        // moveTo pathfinder megkerüli a falakat
+        creep.moveTo(pos(fleeX, fleeY))
     }
 
     // ── Csapat aktív célpontja ────────────────────────────────────────────────
@@ -127,7 +126,7 @@ object CombatBehavior {
      */
     private fun getTeamEngageTarget(gameplay: Gameplay): screeps.api.Position? {
         val fighters = gameplay.myCreeps.filter {
-            it.role == Role.COMBAT_RANGER || it.role == Role.COMBAT_HYBRID
+            it.role == Role.COMBAT_RANGER || it.role == Role.COMBAT_LIGHT_RANGER || it.role == Role.COMBAT_CHEAP_RANGER || it.role == Role.COMBAT_SELF_HEAL_RANGER || it.role == Role.COMBAT_HYBRID
         }
         val enemies = gameplay.getHostileCreeps()
         for (fighter in fighters) {
@@ -139,6 +138,24 @@ object CombatBehavior {
     }
 
     // ── Focus fire ────────────────────────────────────────────────────────────
+
+    /**
+     * Lövés: ha 3+ ellenség van OPTIMAL_RANGE-en belül → rangedMassAttack (több DPS).
+     * Egyébként focus fire a legkevesebb HP-s célra.
+     */
+    private fun shootBest(creep: Creep, gameplay: Gameplay) {
+        if (!creep.canRangedAttack()) return
+        // Ha 2+ saját creep is közel van az ellenséghez → mass attack több DPS-t ad
+        val target = getFocusTarget(creep, gameplay) ?: return
+        val alliesNearTarget = gameplay.myCreeps.count { ally ->
+            ally.id != creep.id && ally.getRangeTo(target) <= OPTIMAL_RANGE
+        }
+        if (alliesNearTarget >= 2) {
+            creep.rangedMassAttack()
+        } else {
+            creep.rangedAttack(target)
+        }
+    }
 
     private fun getFocusTarget(creep: Creep, gameplay: Gameplay): Creep? =
         gameplay.getHostileCreeps()
@@ -164,7 +181,7 @@ object CombatBehavior {
 
     private fun getTeamCentroid(gameplay: Gameplay): screeps.api.Position? {
         val fighters = gameplay.myCreeps.filter {
-            it.role == Role.COMBAT_RANGER || it.role == Role.COMBAT_HYBRID
+            it.role == Role.COMBAT_RANGER || it.role == Role.COMBAT_LIGHT_RANGER || it.role == Role.COMBAT_CHEAP_RANGER || it.role == Role.COMBAT_SELF_HEAL_RANGER || it.role == Role.COMBAT_HYBRID
         }
         if (fighters.isEmpty()) return null
         val avgX = fighters.map { it.x }.average().toInt()

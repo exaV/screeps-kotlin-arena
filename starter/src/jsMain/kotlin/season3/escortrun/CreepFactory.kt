@@ -13,6 +13,9 @@ enum class CreepType {
     RANGER,        // TOUGH MOVE×5 RANGED_ATTACK×4
     HYBRID,        // MOVE×2 RANGED_ATTACK HEAL
     DIGGER,        // MOVE ATTACK×10
+    LIGHT_RANGER,  // MOVE×2 RANGED_ATTACK×2 – gyors, olcsó kiter
+    CHEAP_RANGER,  // MOVE×1 RANGED_ATTACK×1 – legolcsóbb, özön taktika
+    SELF_HEAL_RANGER, // MOVE×3 RANGED_ATTACK×3 HEAL×1 – öngyógyító harcos
 }
 
 // ── Factory ───────────────────────────────────────────────────────────────────
@@ -29,6 +32,9 @@ interface CreepFactory {
             CreepType.RANGER       -> RangerFactory
             CreepType.HYBRID       -> HybridFactory
             CreepType.DIGGER       -> DiggerFactory
+            CreepType.LIGHT_RANGER -> LightRangerFactory
+            CreepType.CHEAP_RANGER -> CheapRangerFactory
+            CreepType.SELF_HEAL_RANGER -> SelfHealRangerFactory
         }
     }
 }
@@ -61,6 +67,21 @@ private object RangerFactory : CreepFactory {
 private object HybridFactory : CreepFactory {
     override fun createCreep(spawn: StructureSpawn) =
         spawn.spawnCreep(arrayOf(MOVE, MOVE, MOVE, HEAL, HEAL)).`object`
+}
+
+private object SelfHealRangerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(MOVE, MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, HEAL)).`object`
+}
+
+private object CheapRangerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(MOVE, RANGED_ATTACK)).`object`
+}
+
+private object LightRangerFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(MOVE, MOVE, RANGED_ATTACK, RANGED_ATTACK)).`object`
 }
 
 private object DiggerFactory : CreepFactory {

@@ -48,9 +48,7 @@ object SpawnQueue {
         CreepType.CARRY,
     )
     private val NORMAL_COMBAT = listOf(
-        CreepType.RANGER,
-        CreepType.RANGER,
-        CreepType.HYBRID,
+        CreepType.CHEAP_RANGER,
     )
 
     private val PANIC_ECONOMY = listOf(
@@ -59,9 +57,7 @@ object SpawnQueue {
         CreepType.WORKER,
     )
     private val PANIC_COMBAT = listOf(
-        CreepType.RANGER,
-        CreepType.RANGER,
-        CreepType.HYBRID,
+        CreepType.CHEAP_RANGER,
     )
 
     // ── Belső állapot ─────────────────────────────────────────────────────────
@@ -110,6 +106,9 @@ object SpawnQueue {
             CreepType.CARRY     -> if (isTop) arrayOf(TOP_LEFT) else arrayOf(BOTTOM_LEFT)
 
             CreepType.RANGER,
+            CreepType.LIGHT_RANGER,
+            CreepType.CHEAP_RANGER,
+            CreepType.SELF_HEAL_RANGER,
             CreepType.HYBRID,
             CreepType.DIGGER    -> if (isTop) arrayOf(BOTTOM_RIGHT) else arrayOf(TOP_RIGHT)
         }
@@ -117,7 +116,7 @@ object SpawnQueue {
 
     fun onSuccess(type: CreepType, gameplay: Gameplay) {
         when (type) {
-            CreepType.RANGER, CreepType.HYBRID -> {
+            CreepType.RANGER, CreepType.LIGHT_RANGER, CreepType.CHEAP_RANGER, CreepType.SELF_HEAL_RANGER, CreepType.HYBRID -> {
                 combatCycleIndex = (combatCycleIndex + 1) % currentCombat().size
             }
             CreepType.DIGGER -> {

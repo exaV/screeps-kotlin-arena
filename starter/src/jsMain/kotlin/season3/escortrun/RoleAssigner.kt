@@ -32,14 +32,21 @@ object RoleAssigner {
         val hasHeal   = creep.canHeal()
         val hasWork   = creep.body.any { it.type == WORK }
 
+        val hasTough  = creep.body.any { it.type == TOUGH }
+        val moveCount = creep.body.count { it.type == MOVE }
+        val raCount   = creep.body.count { it.type == RANGED_ATTACK }
+
         return when {
-            hasAttack             -> Role.COMBAT_DIGGER
-            hasRanged && hasHeal  -> Role.COMBAT_HYBRID
-            hasHeal               -> Role.COMBAT_HYBRID
-            hasRanged             -> Role.COMBAT_RANGER
-            hasWork               -> Role.WORKER
-            creep.isCarryOnly()   -> Role.CARRY
-            else                  -> Role.HARVESTER
+            hasAttack                                    -> Role.COMBAT_DIGGER
+            hasRanged && hasHeal && !hasTough            -> Role.COMBAT_SELF_HEAL_RANGER
+            hasRanged && hasHeal                         -> Role.COMBAT_HYBRID
+            hasHeal                                      -> Role.COMBAT_HYBRID
+            hasRanged && !hasTough && moveCount == 1 && raCount == 1 -> Role.COMBAT_CHEAP_RANGER
+            hasRanged && !hasTough && moveCount <= 2     -> Role.COMBAT_LIGHT_RANGER
+            hasRanged                                    -> Role.COMBAT_RANGER
+            hasWork                                      -> Role.WORKER
+            creep.isCarryOnly()                          -> Role.CARRY
+            else                                         -> Role.HARVESTER
         }
     }
 }

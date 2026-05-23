@@ -11,6 +11,9 @@ enum class Role {
     CARRY,                // CARRY only   – W2 és H1 közötti relay közvetítő
     COMBAT_HYBRID,        // MOVE×2 RANGED_ATTACK HEAL
     COMBAT_RANGER,        // TOUGH MOVE×5 RANGED_ATTACK×4
+    COMBAT_LIGHT_RANGER,  // MOVE×2 RANGED_ATTACK×2 – gyors kiter
+    COMBAT_CHEAP_RANGER,  // MOVE×1 RANGED_ATTACK×1 – özön
+    COMBAT_SELF_HEAL_RANGER, // MOVE×3 RANGED_ATTACK×3 HEAL×1 – öngyógyító
     COMBAT_FLAG_BLOCKER,  // Tickenként az ellenséges zászló/spawn cellájára áll
     COMBAT_DIGGER,        // MOVE ATTACK×10 – fal bontó, majd saját flag felé
 }

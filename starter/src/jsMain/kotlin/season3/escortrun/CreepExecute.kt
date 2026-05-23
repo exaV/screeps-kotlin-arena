@@ -18,7 +18,10 @@ fun Creep.execute(gameplay: Gameplay) {
         Role.HARVESTER           -> HarvesterBehavior.execute(this, gameplay, boostEnabled)
         Role.CARRY               -> CarryBehavior.execute(this, gameplay)
         Role.COMBAT_HYBRID,
-        Role.COMBAT_RANGER       -> CombatBehavior.execute(this, gameplay)
+        Role.COMBAT_RANGER,
+        Role.COMBAT_LIGHT_RANGER,
+        Role.COMBAT_CHEAP_RANGER,
+        Role.COMBAT_SELF_HEAL_RANGER -> CombatBehavior.execute(this, gameplay)
         Role.COMBAT_DIGGER       -> DiggerBehavior.execute(this, gameplay)
         Role.COMBAT_FLAG_BLOCKER -> { /* TODO */ }
     }
