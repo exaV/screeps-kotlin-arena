@@ -79,15 +79,12 @@ object CarryBehavior {
         // H1 csere: C1 (5,5)/(5,94)-on, H1 szomszéd → mozdul H1 felé
         val h1SwapPos = if (gameplay.isTopSide) pos(5, 5) else pos(5, 94)
         val h1Adjacent = h1 != null && creep.getRangeTo(h1) <= 1
-        println("[C1-swap] pos=(${creep.x},${creep.y}) h1=${h1?.let{"(${it.x},${it.y})"}?:"null"} h2=${h2?.let{"(${it.x},${it.y})"}?:"null"} h2Adj=$h2Adjacent h1Adj=$h1Adjacent")
         when {
             h2Adjacent && creep.x == h2SwapPos.x && creep.y == h2SwapPos.y -> {
                 creep.moveTo(h2)
-                println("[C1-swap] H2 csere: moveTo H2")
             }
             h1Adjacent && creep.x == h1SwapPos.x && creep.y == h1SwapPos.y -> {
                 creep.moveTo(h1)
-                println("[C1-swap] H1 csere: moveTo H1")
             }
             // egyébként vár
         }

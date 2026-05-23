@@ -111,20 +111,16 @@ object HarvesterBehavior {
 
             val step1 = if (gameplay.isTopSide) pos(4, 4) else pos(4, 95)
             val step2 = if (gameplay.isTopSide) pos(5, 5) else pos(5, 94)
-            println("[H1] pozicionálás: pos=(${creep.x},${creep.y}) step1=(${step1.x},${step1.y}) step2=(${step2.x},${step2.y}) carry=${carry?.let{"(${it.x},${it.y})"}?:"null"}")
             when {
                 creep.x == step2.x && creep.y == step2.y -> {
-                    println("[H1] step2-n vagyok → chainPositioningDone = true")
                     chainPositioningDone = true
                 }
                 creep.x == step1.x && creep.y == step1.y -> {
                     // C1 (5,5)/(5,94)-en áll → pullozzuk és menjünk oda (helycserés módszer)
-                    println("[H1] step1-en vagyok, pullolom carry-t és megyek step2 felé")
                     if (carry != null) creep.pull(carry)
                     creep.moveTo(step2)
                 }
                 else -> {
-                    println("[H1] else, megyek step1 felé")
                     creep.moveTo(step1)
                 }
             }
@@ -182,7 +178,6 @@ object HarvesterBehavior {
         val positions = EscortPositions.get(gameplay.mySpawn.y)
         val spawn = gameplay.mySpawn
 
-        println("[H2] boostEnabled=$boostEnabled boostedEconomyBuilt=$boostedEconomyBuilt w2InPlace=${EnergyChain.isWorker2InPlace(gameplay)} chainDone=$chainPositioningDone pos=(${creep.x},${creep.y})")
 
         if (boostEnabled && !boostedEconomyBuilt) {
             // W2 még nincs helyén → H2 húzza W2-t
@@ -199,38 +194,31 @@ object HarvesterBehavior {
                         creep.moveTo(h1)
                     }
                 }
-                println("[H2] boost ág: húzza W2-t")
                 return
             }
-            println("[H2] boost ágban van de W2 már helyén → folytatja")
         }
 
         // Boost utáni egyszeri pozicionálás: H2 megy (5,94)→(6,93) / (5,5)→(6,6)
         // Ha C1 blokkolja step2-t → H2 pullolja és megy oda → helyet cserélnek
         // Trigger: W2 már a helyén van (boostedEconomyBuilt még ugyanabban a tickben false lehet)
         val w2InPlace = EnergyChain.isWorker2InPlace(gameplay)
-        println("[H2] pozicionálás feltétel: (boostedEconomyBuilt=$boostedEconomyBuilt || w2InPlace=$w2InPlace) && !chainDone=$chainPositioningDone h2SwapDone=$h2SwapDone")
         if ((boostedEconomyBuilt || w2InPlace) && !chainPositioningDone && !h2SwapDone) {
             val step1 = if (gameplay.isTopSide) pos(5, 5)  else pos(5, 94)
             val step2 = if (gameplay.isTopSide) pos(6, 6)  else pos(6, 93)
             val carry = EnergyChain.getCarry(gameplay)
-            println("[H2] pozicionálás aktív, pos=(${creep.x},${creep.y}) step1=(${step1.x},${step1.y}) step2=(${step2.x},${step2.y}) carry=${carry?.let{"(${it.x},${it.y})"}?:"null"}")
             when {
                 creep.x == step2.x && creep.y == step2.y -> {
                     val carryGone = carry == null || !(carry.x == step2.x && carry.y == step2.y)
-                    println("[H2] step2-n vagyok, carryGone=$carryGone")
                     if (carryGone) {
                         h2SwapDone = true
                         executeNormalRelayH2(creep, gameplay, h1, spawn)
                     }
                 }
                 creep.x == step1.x && creep.y == step1.y -> {
-                    println("[H2] step1-en vagyok, pullolom carry-t és megyek step2 felé")
                     if (carry != null) creep.pull(carry)
                     creep.moveTo(step2)
                 }
                 else -> {
-                    println("[H2] else ág, megyek step1 felé")
                     creep.moveTo(step1)
                 }
             }
