@@ -4,6 +4,7 @@ import screeps.api.*
 import screeps.api.structures.StructureWall
 import season3.escortrun.Gameplay
 import season3.escortrun.Role
+import season3.escortrun.economy.EnergyChain
 import season3.escortrun.economy.WorkerBehavior
 import season3.escortrun.pos
 import season3.escortrun.role
@@ -50,7 +51,9 @@ object EscortCreepController {
         }
 
         // Nincs Digger → eredeti pre/post-boost logika
-        val target = if (WorkerBehavior.boostedEconomyBuilt) {
+        // Post-boost: csak akkor indul el ha CARRY már a relay pozícióján van
+        val carryReady = !WorkerBehavior.boostedEconomyBuilt || EnergyChain.isCarryInPlace(gameplay)
+        val target = if (WorkerBehavior.boostedEconomyBuilt && carryReady) {
             if (gameplay.isTopSide) POST_BOOST_TOP else POST_BOOST_BOT
         } else {
             if (gameplay.isTopSide) PRE_BOOST_TOP  else PRE_BOOST_BOT

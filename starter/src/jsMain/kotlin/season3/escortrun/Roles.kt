@@ -8,6 +8,7 @@ import season3.escortrun.combat.CombatTuning
 enum class Role {
     WORKER,               // WORK×3 CARRY – forrás bányász (fix pozíció)
     HARVESTER,            // MOVE CARRY   – energia szállító
+    CARRY,                // CARRY only   – W2 és H1 közötti relay közvetítő
     COMBAT_HYBRID,        // MOVE×2 RANGED_ATTACK HEAL
     COMBAT_RANGER,        // TOUGH MOVE×5 RANGED_ATTACK×4
     COMBAT_FLAG_BLOCKER,  // Tickenként az ellenséges zászló/spawn cellájára áll
@@ -44,6 +45,7 @@ fun Creep.hasRole(): Boolean = roleMap.containsKey(id)
 fun Creep.canAttack(): Boolean        = body.any { it.type == ATTACK }
 fun Creep.canRangedAttack(): Boolean  = body.any { it.type == RANGED_ATTACK }
 fun Creep.canHeal(): Boolean          = body.any { it.type == HEAL }
+fun Creep.isCarryOnly(): Boolean      = body.all { it.type == CARRY }
 
 /**
  * Az ellenfél közvetlen sebzési fenyegetést jelent a saját VIP-re

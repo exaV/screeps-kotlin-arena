@@ -45,6 +45,7 @@ object SpawnQueue {
         CreepType.WORKER,
         CreepType.HARVESTER,
         CreepType.HEAVY_WORKER,
+        CreepType.CARRY,
     )
     private val NORMAL_COMBAT = listOf(
         CreepType.RANGER,
@@ -72,6 +73,7 @@ object SpawnQueue {
 
     private val targetWorkers    get() = if (panicModeActive) 2 else 1
     private val targetHarvesters = 1
+    private val targetCarry      = 1   // csak normál módban, 1 db
 
     // ── Publikus API ──────────────────────────────────────────────────────────
 
@@ -85,9 +87,11 @@ object SpawnQueue {
         if (!economyDone) {
             val spawnedWorkers    = gameplay.myCreeps.count { it.role == Role.WORKER }
             val spawnedHarvesters = gameplay.myCreeps.count { it.role == Role.HARVESTER }
+            val spawnedCarry      = gameplay.myCreeps.count { it.role == Role.CARRY }
             val targetW = economy.count { it == CreepType.WORKER || it == CreepType.HEAVY_WORKER }
             val targetH = economy.count { it == CreepType.HARVESTER }
-            if (spawnedWorkers >= targetW && spawnedHarvesters >= targetH) {
+            val targetC = economy.count { it == CreepType.CARRY }
+            if (spawnedWorkers >= targetW && spawnedHarvesters >= targetH && spawnedCarry >= targetC) {
                 economyDone = true
             }
         }
@@ -102,7 +106,8 @@ object SpawnQueue {
         return when (type) {
             CreepType.WORKER,
             CreepType.HEAVY_WORKER,
-            CreepType.HARVESTER -> if (isTop) arrayOf(TOP_LEFT) else arrayOf(BOTTOM_LEFT)
+            CreepType.HARVESTER,
+            CreepType.CARRY     -> if (isTop) arrayOf(TOP_LEFT) else arrayOf(BOTTOM_LEFT)
 
             CreepType.RANGER,
             CreepType.HYBRID,
@@ -144,9 +149,11 @@ object SpawnQueue {
     private fun nextEconomyType(gameplay: Gameplay, economy: List<CreepType>): CreepType? {
         val spawnedWorkers    = gameplay.myCreeps.count { it.role == Role.WORKER }
         val spawnedHarvesters = gameplay.myCreeps.count { it.role == Role.HARVESTER }
+        val spawnedCarry      = gameplay.myCreeps.count { it.role == Role.CARRY }
 
         var wNeed = 0
         var hNeed = 0
+        var cNeed = 0
         for (type in economy) {
             when (type) {
                 CreepType.WORKER, CreepType.HEAVY_WORKER -> {
@@ -156,6 +163,10 @@ object SpawnQueue {
                 CreepType.HARVESTER -> {
                     if (spawnedHarvesters <= hNeed) return type
                     hNeed++
+                }
+                CreepType.CARRY -> {
+                    if (spawnedCarry <= cNeed) return type
+                    cNeed++
                 }
                 else -> {}
             }
@@ -197,8 +208,10 @@ object SpawnQueue {
         if (!economyDone) return null
         val workers    = gameplay.myCreeps.count { it.role == Role.WORKER }
         val harvesters = gameplay.myCreeps.count { it.role == Role.HARVESTER }
+        val carry      = gameplay.myCreeps.count { it.role == Role.CARRY }
         if (harvesters < targetHarvesters) return CreepType.HARVESTER
         if (workers    < targetWorkers)    return CreepType.WORKER
+        if (!panicModeActive && carry < targetCarry) return CreepType.CARRY
         return null
     }
 }

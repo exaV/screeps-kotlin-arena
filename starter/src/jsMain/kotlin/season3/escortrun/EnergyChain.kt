@@ -74,6 +74,7 @@ object EnergyChain {
     fun getSecondaryWorker(gameplay: Gameplay):   Creep? = getSortedWorkers(gameplay).getOrNull(1)
     fun getPrimaryHarvester(gameplay: Gameplay):  Creep? = getSortedHarvesters(gameplay).firstOrNull()
     fun getSecondaryHarvester(gameplay: Gameplay):Creep? = getSortedHarvesters(gameplay).getOrNull(1)
+    fun getCarry(gameplay: Gameplay):             Creep? = gameplay.myCreeps.firstOrNull { it.role == Role.CARRY }
 
     fun isWorker1InPlace(gameplay: Gameplay): Boolean {
         val w1     = getPrimaryWorker(gameplay) ?: return false
@@ -85,5 +86,12 @@ object EnergyChain {
         val w2     = getSecondaryWorker(gameplay) ?: return false
         val target = EscortPositions.get(gameplay.mySpawn.y).worker2Target
         return w2.x == target.x && w2.y == target.y
+    }
+
+    /** CARRY a relay pozícióján van-e (top: 4,4 / bot: 4,95). */
+    fun isCarryInPlace(gameplay: Gameplay): Boolean {
+        val carry  = getCarry(gameplay) ?: return false
+        val target = if (gameplay.mySpawn.y < 50) pos(4, 4) else pos(4, 95)
+        return carry.x == target.x && carry.y == target.y
     }
 }

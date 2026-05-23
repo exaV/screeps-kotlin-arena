@@ -1,6 +1,7 @@
 package season3.escortrun
 
 import screeps.api.*
+import season3.escortrun.isCarryOnly
 
 /**
  * Minden ticken a még nem szereppel rendelkező creepeket besorolja
@@ -33,10 +34,11 @@ object RoleAssigner {
 
         return when {
             hasAttack             -> Role.COMBAT_DIGGER
-            hasRanged && hasHeal  -> Role.COMBAT_HYBRID  // ha esetleg marad ilyen a jövőben
+            hasRanged && hasHeal  -> Role.COMBAT_HYBRID
             hasHeal               -> Role.COMBAT_HYBRID
             hasRanged             -> Role.COMBAT_RANGER
             hasWork               -> Role.WORKER
+            creep.isCarryOnly()   -> Role.CARRY
             else                  -> Role.HARVESTER
         }
     }

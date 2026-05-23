@@ -78,6 +78,7 @@ object WorkerBehavior {
         val w1        = EnergyChain.getPrimaryWorker(gameplay)
         val h1        = EnergyChain.getPrimaryHarvester(gameplay)
         val h2        = EnergyChain.getSecondaryHarvester(gameplay)
+        val c        = EnergyChain.getCarry(gameplay)
         val source    = gameplay.mySource
         val positions = EscortPositions.get(gameplay.mySpawn.y)
 
@@ -96,14 +97,19 @@ object WorkerBehavior {
             // W2 még nem helyén → kövesd H2-t (H2 húz)
             if (!creep.spawning && !EnergyChain.isWorker2InPlace(gameplay)) {
                 if (h2 != null) creep.moveTo(h2)
+                c?.let {
+                    creep.pull(it)
+                }
                 return
             }
         }
 
-        // Normál mód: bányász + átad H1-nek
+        // Normál mód: bányász + átad CARRY-nak (ha van), különben H1-nek
+        val carry = EnergyChain.getCarry(gameplay)
+        val transferTarget = carry ?: h1
         if (creep.getRangeTo(source) <= 1) creep.harvest(source)
-        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && h1 != null && creep.getRangeTo(h1) <= 1) {
-            creep.transfer(h1, RESOURCE_ENERGY)
+        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0 && transferTarget != null && creep.getRangeTo(transferTarget) <= 1) {
+            creep.transfer(transferTarget, RESOURCE_ENERGY)
         }
     }
 }

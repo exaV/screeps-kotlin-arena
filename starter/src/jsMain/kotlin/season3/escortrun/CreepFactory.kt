@@ -9,6 +9,7 @@ enum class CreepType {
     WORKER,        // WORK×3 CARRY
     HEAVY_WORKER,  // WORK×5 CARRY
     HARVESTER,     // MOVE CARRY
+    CARRY,         // CARRY – relay közvetítő W2 és H1 között
     RANGER,        // TOUGH MOVE×5 RANGED_ATTACK×4
     HYBRID,        // MOVE×2 RANGED_ATTACK HEAL
     DIGGER,        // MOVE ATTACK×10
@@ -24,6 +25,7 @@ interface CreepFactory {
             CreepType.WORKER       -> WorkerFactory
             CreepType.HEAVY_WORKER -> HeavyWorkerFactory
             CreepType.HARVESTER    -> HarvesterFactory
+            CreepType.CARRY        -> CarryFactory
             CreepType.RANGER       -> RangerFactory
             CreepType.HYBRID       -> HybridFactory
             CreepType.DIGGER       -> DiggerFactory
@@ -44,6 +46,11 @@ private object HeavyWorkerFactory : CreepFactory {
 private object HarvesterFactory : CreepFactory {
     override fun createCreep(spawn: StructureSpawn) =
         spawn.spawnCreep(arrayOf(MOVE, CARRY)).`object`
+}
+
+private object CarryFactory : CreepFactory {
+    override fun createCreep(spawn: StructureSpawn) =
+        spawn.spawnCreep(arrayOf(CARRY)).`object`
 }
 
 private object RangerFactory : CreepFactory {

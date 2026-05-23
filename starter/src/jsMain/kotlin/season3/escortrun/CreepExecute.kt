@@ -3,6 +3,7 @@ package season3.escortrun
 import screeps.api.Creep
 import season3.escortrun.combat.CombatBehavior
 import season3.escortrun.combat.DiggerBehavior
+import season3.escortrun.economy.CarryBehavior
 import season3.escortrun.economy.HarvesterBehavior
 import season3.escortrun.economy.WorkerBehavior
 
@@ -15,6 +16,7 @@ fun Creep.execute(gameplay: Gameplay) {
     when (role) {
         Role.WORKER              -> WorkerBehavior.execute(this, gameplay, boostEnabled)
         Role.HARVESTER           -> HarvesterBehavior.execute(this, gameplay, boostEnabled)
+        Role.CARRY               -> CarryBehavior.execute(this, gameplay)
         Role.COMBAT_HYBRID,
         Role.COMBAT_RANGER       -> CombatBehavior.execute(this, gameplay)
         Role.COMBAT_DIGGER       -> DiggerBehavior.execute(this, gameplay)
